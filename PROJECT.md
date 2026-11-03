@@ -1,6 +1,6 @@
 # TraceRail CBM
 
-Living plan for this repo. Updated 3 Nov 2026. Status: fleet screen at `/` in `app/fleet.html`. Recommend posts scored measurements into one JSON model call (`app/recommend.py`); without `OPENAI_API_KEY` it falls back to the rule draft. Next step is deploy.
+Living plan for this repo. Updated 3 Nov 2026. Status: live at https://tracerail-mertcp.fly.dev/. Next step is the warning before agent-only notes are removed.
 
 Open this file from the left file tree. In a new chat, say: read `PROJECT.md` and continue from the next unchecked step.
 
@@ -63,7 +63,7 @@ Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with 
 - [x] Scoring: health and delay-risk rank, formula visible in the UI (`app/fleet.html`)
 - [x] AI draft: the model reads the two measurements and decides the upcoming maintenance (`app/recommend.py`). Without `OPENAI_API_KEY` the page drafts from the same numbers.
 - [x] UI: fleet, asset with similar items and if-we-wait, two charts (`app/fleet.html`)
-- [ ] Deploy, public GitHub, README with live URL, architecture, curl, and the 8-minute script
+- [x] Deploy, public GitHub, README with live URL, architecture, curl, and the 8-minute script (https://tracerail-mertcp.fly.dev/)
 - [ ] Before calling it finished: warn Mert, then remove agent-only notes (see below)
 
 ### Day split

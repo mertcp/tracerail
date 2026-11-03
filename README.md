@@ -4,7 +4,7 @@ Condition-based maintenance for a synthetic metro fleet. The job of the app is t
 
 The trains do not report that they are healthy. They send measurements. TraceRail scores health and delay risk. A maintainer accepts or edits the maintenance line.
 
-Live page: not deployed yet.
+Live page: https://tracerail-mertcp.fly.dev/
 
 All data is synthetic. Nordic Metro, trains NM-01 to NM-12. No operator, supplier, or vehicle data from a real project.
 
