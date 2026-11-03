@@ -9,7 +9,11 @@ from app.models import Base
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "data" / "tracerail.db"
-ENGINE = create_engine(f"sqlite:///{DB_PATH}", future=True)
+ENGINE = create_engine(
+    "sqlite:///{0}".format(DB_PATH),
+    future=True,
+    connect_args={"check_same_thread": False},
+)
 SessionLocal = sessionmaker(bind=ENGINE, expire_on_commit=False)
 
 
