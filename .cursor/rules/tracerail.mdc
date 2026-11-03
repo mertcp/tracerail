@@ -13,3 +13,4 @@ Read `PROJECT.md` before changing scope. It is the plan.
 - Call it an operational fleet twin: asset health plus a visible delay-risk formula. Do not add 3D, CAD, physics, Kafka, Kubernetes, SSO, or a neural remaining-life model.
 - Stack stays FastAPI, a simple UI, SQLite or Postgres, one JSON LLM call, TF-IDF for similar assets.
 - Ship a live URL. If time slips, stub the LLM and deploy the ranked fleet.
+- Write code Mert can explain aloud. Small files, straight functions, fleet words. No extra layers, banners, or a comment on every function.

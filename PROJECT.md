@@ -95,6 +95,16 @@ Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with 
 | Over-claiming a digital twin | Say operational fleet twin, and name the model. |
 | Auth or Azure setup eats the weekend | Demo button. Mention Azure as the production target only. |
 
+## How the code should read
+
+Mert will walk a recruiter through this repo. The code should read like a system engineer wrote a short demo, not like a generated framework.
+
+- Keep files small and the path straight. A function should be readable aloud.
+- Use fleet words: train, car, door operator, delay minutes.
+- Comment the delay-risk formula and any decision that the name does not show. Do not comment every function.
+- Skip extra layers, base classes, banners, and placeholder scaffolds.
+- After each step, Mert should be able to explain the changed file in a few sentences.
+
 ## How we work in Cursor
 
 - This folder is the project. Open it before coding.
