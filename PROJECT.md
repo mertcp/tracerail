@@ -1,6 +1,6 @@
 # TraceRail CBM
 
-Living plan for this repo. Updated 3 Nov 2026. Status: API in `app/api.py`. Recommendation text is calculated from the delay-risk numbers. Next step is showing that rank and formula in the UI. The model call is still the AI step.
+Living plan for this repo. Updated 3 Nov 2026. Status: fleet screen at `/` in `app/fleet.html`. Recommendation text is still calculated from the delay-risk numbers. Next step is the model call.
 
 Open this file from the left file tree. In a new chat, say: read `PROJECT.md` and continue from the next unchecked step.
 
@@ -59,9 +59,9 @@ Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with 
 - [x] Schema: train, car, system, component, readings, events, recommendations (`app/models.py`)
 - [x] Seed 12 trains and about 80 assets, including a few obvious degrading trends (`app/seed.py`)
 - [x] API: fleet list, asset detail, ingest event, recommend (`app/api.py`)
-- [ ] Scoring: health and delay-risk rank, formula visible in the UI
-- [ ] AI draft: action, window, delay minutes avoided, confidence; accept and edit
-- [ ] UI: fleet, asset with similar items and if-we-wait, two charts
+- [x] Scoring: health and delay-risk rank, formula visible in the UI (`app/fleet.html`)
+- [ ] AI draft: replace the calculated recommendation with one model call; accept and edit already work
+- [x] UI: fleet, asset with similar items and if-we-wait, two charts (`app/fleet.html`)
 - [ ] Deploy, public GitHub, README with live URL, architecture, curl, and the 8-minute script
 - [ ] Before calling it finished: warn Mert, then remove agent-only notes (see below)
 

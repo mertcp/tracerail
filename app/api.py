@@ -1,8 +1,11 @@
 """Fleet API. Recommendation text is written from the delay-risk numbers."""
 
 from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 
@@ -101,6 +104,17 @@ class EventIn(BaseModel):
     caused_delay_minutes: float = 0
 
 
+class DecisionIn(BaseModel):
+    status: str
+    edited_action: Optional[str] = None
+
+
+@app.get("/")
+def home():
+    page = Path(__file__).resolve().parent / "fleet.html"
+    return FileResponse(page)
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -183,5 +197,27 @@ def recommend(component_id: int, session: Session = Depends(session_scope)):
         "window": record.window,
         "delay_minutes_avoided": record.delay_minutes_avoided,
         "confidence": record.confidence,
+        "status": record.status,
+    }
+
+
+@app.post("/recommendations/{recommendation_id}/decision")
+def decide(recommendation_id: int, incoming: DecisionIn, session: Session = Depends(session_scope)):
+    if incoming.status not in ("accepted", "edited", "rejected"):
+        raise HTTPException(status_code=400, detail="Status must be accepted, edited, or rejected")
+    record = session.get(Recommendation, recommendation_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Recommendation not found")
+    record.status = incoming.status
+    if incoming.status == "edited":
+        if not incoming.edited_action:
+            raise HTTPException(status_code=400, detail="An edited action is required")
+        record.edited_action = incoming.edited_action
+    session.commit()
+    return {
+        "id": record.id,
+        "action": record.edited_action or record.action,
+        "window": record.window,
+        "delay_minutes_avoided": record.delay_minutes_avoided,
         "status": record.status,
     }
