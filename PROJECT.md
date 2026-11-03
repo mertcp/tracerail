@@ -1,6 +1,6 @@
 # TraceRail CBM
 
-Living plan for this repo. Updated 3 Nov 2026. Status: schema written in `app/models.py`. Next step is seed data.
+Living plan for this repo. Updated 3 Nov 2026. Status: synthetic fleet seeded by `app/seed.py`. Next step is the API.
 
 Open this file from the left file tree. In a new chat, say: read `PROJECT.md` and continue from the next unchecked step.
 
@@ -57,7 +57,7 @@ Open the live URL, see a degrading door on Train 07, run Recommend maintenance, 
 Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with a stubbed recommendation beats a local app that never deploys.
 
 - [x] Schema: train, car, system, component, readings, events, recommendations (`app/models.py`)
-- [ ] Seed 12 trains and about 80 assets, including a few obvious degrading trends
+- [x] Seed 12 trains and about 80 assets, including a few obvious degrading trends (`app/seed.py`)
 - [ ] API: fleet list, asset detail, ingest event, recommend
 - [ ] Scoring: health and delay-risk rank, formula visible in the UI
 - [ ] AI draft: action, window, delay minutes avoided, confidence; accept and edit
