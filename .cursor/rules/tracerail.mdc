@@ -1,0 +1,15 @@
+---
+description: TraceRail CBM scope, synthetic data, and demo limits
+alwaysApply: true
+---
+
+# TraceRail CBM
+
+Read `PROJECT.md` before changing scope. It is the plan.
+
+- Railway condition-based maintenance demo. Success metric is delay minutes avoided.
+- Synthetic data only. Never add real OEM drawings, logs, suppliers, or vehicle data.
+- One workflow: ingest, score, rank, AI maintenance draft, human accept or edit.
+- Call it an operational fleet twin: asset health plus a visible delay-risk formula. Do not add 3D, CAD, physics, Kafka, Kubernetes, SSO, or a neural remaining-life model.
+- Stack stays FastAPI, a simple UI, SQLite or Postgres, one JSON LLM call, TF-IDF for similar assets.
+- Ship a live URL. If time slips, stub the LLM and deploy the ranked fleet.
