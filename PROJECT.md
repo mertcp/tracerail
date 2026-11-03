@@ -1,6 +1,6 @@
 # TraceRail CBM
 
-Living plan for this repo. Updated 3 Nov 2026. Status: fleet screen at `/` in `app/fleet.html`. Recommendation text is still calculated from the delay-risk numbers. Next step is the model call.
+Living plan for this repo. Updated 3 Nov 2026. Status: fleet screen at `/` in `app/fleet.html`. Recommend posts scored measurements into one JSON model call (`app/recommend.py`); without `OPENAI_API_KEY` it falls back to the rule draft. Next step is deploy.
 
 Open this file from the left file tree. In a new chat, say: read `PROJECT.md` and continue from the next unchecked step.
 
@@ -33,6 +33,7 @@ Done means a public GitHub repo and a live URL a stranger can use with no setup.
 - Screens: fleet, asset detail, ops charts.
 - Twin depth: train, car, system, component tree; state badge (healthy, degrading, act tonight); one “if we wait” line with expected delay minutes until the next exam.
 - World: Nordic Metro, 12 trains, doors / brakes / HVAC / traction, about 80 assets. Seed a few obvious degrading trends, including a door on Train 07.
+- Inputs are two measurements per system. Doors: motor current and lock time. Brakes: cylinder pressure and pad distance. HVAC: supply-to-return temperature gap and compressor current. Traction: inverter temperature and phase current. TraceRail scores health and delay risk from those numbers. The model reads the same measurements and decides the maintenance for the upcoming days.
 - Delay risk: failure probability times typical delay minutes. The formula stays visible in the UI.
 - Stack: FastAPI, a simple UI, SQLite or Postgres, one LLM call that returns JSON, TF-IDF for similar assets.
 - Host: Fly, Railway, or Render so it stays up. Azure is the production story in the README, not the weekend setup.
@@ -60,7 +61,7 @@ Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with 
 - [x] Seed 12 trains and about 80 assets, including a few obvious degrading trends (`app/seed.py`)
 - [x] API: fleet list, asset detail, ingest event, recommend (`app/api.py`)
 - [x] Scoring: health and delay-risk rank, formula visible in the UI (`app/fleet.html`)
-- [ ] AI draft: replace the calculated recommendation with one model call; accept and edit already work
+- [x] AI draft: the model reads the two measurements and decides the upcoming maintenance (`app/recommend.py`). Without `OPENAI_API_KEY` the page drafts from the same numbers.
 - [x] UI: fleet, asset with similar items and if-we-wait, two charts (`app/fleet.html`)
 - [ ] Deploy, public GitHub, README with live URL, architecture, curl, and the 8-minute script
 - [ ] Before calling it finished: warn Mert, then remove agent-only notes (see below)

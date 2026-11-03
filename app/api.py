@@ -1,4 +1,4 @@
-"""Fleet API. Recommendation text is written from the delay-risk numbers."""
+"""Fleet API. Recommend uses one model call over scored measurements."""
 
 from datetime import datetime
 from pathlib import Path
@@ -10,7 +10,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 
 from app.db import create_tables, get_session
-from app.models import Car, Component, Event, Recommendation, System, Train
+from app.models import Car, Component, Event, Reading, Recommendation, System, Train
+from app.recommend import draft
+from app.scoring import assess
 from app.seed import seed
 
 app = FastAPI(title="TraceRail", version="0.1.0")
@@ -71,37 +73,14 @@ def _one(session, component_id):
     return component
 
 
-def _draft(component):
-    name = component.name.lower()
-    risk = component.delay_risk_minutes
-    waiting = component.if_wait_delay_minutes
-    if component.state == "act_tonight":
-        return (
-            "Inspect the {0} tonight. About {1:g} delay minutes can be avoided.".format(name, risk),
-            "tonight",
-            risk,
-            0.8,
-        )
-    if component.state == "degrading":
-        return (
-            "Schedule the {0} before the next exam. Waiting leaves about {1:g} delay minutes at risk.".format(
-                name, waiting
-            ),
-            "before the next exam",
-            risk,
-            0.6,
-        )
-    return (
-        "Leave the {0} in service until the next exam.".format(name),
-        "next exam",
-        risk,
-        0.5,
-    )
-
-
 class EventIn(BaseModel):
     summary: str
     caused_delay_minutes: float = 0
+
+
+class ReadingIn(BaseModel):
+    metric: str
+    value: float
 
 
 class DecisionIn(BaseModel):
@@ -162,6 +141,22 @@ def asset(component_id: int, session: Session = Depends(session_scope)):
     return body
 
 
+@app.post("/assets/{component_id}/readings")
+def add_reading(component_id: int, incoming: ReadingIn, session: Session = Depends(session_scope)):
+    component = _one(session, component_id)
+    session.add(
+        Reading(
+            component=component,
+            recorded_at=datetime.now(),
+            metric=incoming.metric,
+            value=incoming.value,
+        )
+    )
+    _apply(component)
+    session.commit()
+    return {"metric": incoming.metric, "value": incoming.value, "state": component.state}
+
+
 @app.post("/assets/{component_id}/events")
 def add_event(component_id: int, incoming: EventIn, session: Session = Depends(session_scope)):
     component = _one(session, component_id)
@@ -176,10 +171,24 @@ def add_event(component_id: int, incoming: EventIn, session: Session = Depends(s
     return {"id": event.id, "summary": event.summary, "caused_delay_minutes": event.caused_delay_minutes}
 
 
+def _apply(component):
+    values = {}
+    for reading in sorted(component.readings, key=lambda item: item.recorded_at):
+        values[reading.metric] = reading.value
+    health, probability, state, risk, if_wait = assess(
+        component.system.kind, values, component.typical_delay_minutes
+    )
+    component.health_score = health
+    component.failure_probability = probability
+    component.state = state
+    component.delay_risk_minutes = risk
+    component.if_wait_delay_minutes = if_wait
+
+
 @app.post("/assets/{component_id}/recommend")
 def recommend(component_id: int, session: Session = Depends(session_scope)):
     component = _one(session, component_id)
-    action, window, avoided, confidence = _draft(component)
+    action, window, avoided, confidence = draft(component)
     record = Recommendation(
         component=component,
         created_at=datetime.now(),

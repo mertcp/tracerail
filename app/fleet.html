@@ -103,6 +103,14 @@
       fetch("/assets/" + id).then(function (response) { return response.json(); }).then(drawDetail);
     }
 
+    function latestText(readings) {
+      var latest = {};
+      readings.forEach(function (reading) { latest[reading.metric] = reading.value; });
+      var names = Object.keys(latest);
+      if (!names.length) return "none";
+      return names.map(function (name) { return name + " " + latest[name]; }).join(", ");
+    }
+
     function drawDetail(asset) {
       var similar = fleet.filter(function (row) {
         return row.system === asset.system && row.id !== asset.id && row.state !== "healthy";
@@ -124,7 +132,8 @@
         : "<p class=\"muted\">No recommendation yet.</p>";
       document.getElementById("detail").innerHTML =
         "<h2>" + asset.train + " · car " + asset.car + " · " + asset.component + "</h2>"
-        + "<p>" + asset.state.replace("_", " ") + " · health " + asset.health_score + "</p>"
+        + "<p>Measurements: " + latestText(readings)
+        + ". TraceRail read those values as " + asset.state.replace("_", " ") + ", health " + asset.health_score + ".</p>"
         + "<p>" + asset.formula + "</p>"
         + "<p>" + asset.failure_probability + " × " + asset.typical_delay_minutes + " min = " + asset.delay_risk_minutes + " delay minutes at risk.</p>"
         + "<p>If we wait until the next exam: " + asset.if_wait_delay_minutes + " delay minutes.</p>"

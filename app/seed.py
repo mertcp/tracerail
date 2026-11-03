@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.db import create_tables, get_session
 from app.models import Base, Car, Component, Event, Reading, System, Train
-from app.scoring import delay_risk_minutes
+from app.scoring import SIGNALS, assess
 from app.db import ENGINE
 
 TODAY = datetime(2026, 11, 3, 8, 0, 0)
@@ -18,21 +18,15 @@ COMPONENT_NAMES = {
     "traction": "Traction inverter",
 }
 TYPICAL_DELAY = {"doors": 30.0, "brakes": 20.0, "hvac": 8.0, "traction": 25.0}
-METRICS = {
-    "doors": ("door_open_time_s", 2.8),
-    "brakes": ("pad_wear_mm", 4.0),
-    "hvac": ("supply_temp_c", 21.0),
-    "traction": ("inverter_temp_c", 55.0),
-}
-
-# train number, car position, system kind -> health, failure probability, if-wait minutes
+# Final readings for a few assets, in the same order as SIGNALS.
+# Everything else stays near the normal value.
 SPOTLIGHTS = {
-    (7, 2, "doors"): (42.0, 0.40, 18.0, "act_tonight"),
-    (3, 1, "doors"): (61.0, 0.22, 10.0, "degrading"),
-    (11, 2, "doors"): (58.0, 0.25, 12.0, "degrading"),
-    (9, 1, "brakes"): (64.0, 0.18, 8.0, "degrading"),
-    (5, 2, "hvac"): (67.0, 0.16, 4.0, "degrading"),
-    (2, 1, "traction"): (70.0, 0.14, 7.0, "degrading"),
+    (7, 2, "doors"): (4.2, 2.4),
+    (3, 1, "doors"): (3.4, 1.8),
+    (11, 2, "doors"): (3.6, 1.9),
+    (9, 1, "brakes"): (2.7, 6.0),
+    (5, 2, "hvac"): (4.5, 9.0),
+    (2, 1, "traction"): (82.0, 300.0),
 }
 
 
@@ -42,25 +36,14 @@ def _reset() -> None:
     create_tables()
 
 
-def _state_for_health(health: float) -> str:
-    if health < 50:
-        return "act_tonight"
-    if health < 80:
-        return "degrading"
-    return "healthy"
-
-
-def _add_readings(session: Session, component: Component, kind: str, health: float) -> None:
-    metric, baseline = METRICS[kind]
-    drift = (100.0 - health) / 100.0
+def _add_readings(session: Session, component: Component, metric: str, start: float, end: float) -> None:
     for day in range(14):
-        recorded_at = TODAY - timedelta(days=13 - day)
         progress = day / 13.0
-        value = baseline * (1.0 + drift * progress)
+        value = start + (end - start) * progress
         session.add(
             Reading(
                 component=component,
-                recorded_at=recorded_at,
+                recorded_at=TODAY - timedelta(days=13 - day),
                 metric=metric,
                 value=round(value, 2),
             )
@@ -80,28 +63,33 @@ def seed(session: Session) -> dict:
             for kind in kinds:
                 system = System(car=car, kind=kind)
                 session.add(system)
-                profile = SPOTLIGHTS.get((number, position, kind))
-                if profile is None:
-                    health = 92.0 - ((number + position) % 5)
-                    probability = 0.04
-                    if_wait = 1.0
-                    state = "healthy"
-                else:
-                    health, probability, if_wait, state = profile
+                signals = SIGNALS[kind]
+                ends = SPOTLIGHTS.get((number, position, kind))
+                values = {}
                 typical = TYPICAL_DELAY[kind]
+                for index, signal in enumerate(signals):
+                    metric, normal, limit, higher_is_worse = signal
+                    if ends is None:
+                        step = ((number + position) % 3) * 0.05 * abs(limit - normal)
+                        end = normal + step if higher_is_worse else normal - step
+                    else:
+                        end = ends[index]
+                    values[metric] = end
+                health, probability, state, risk, if_wait = assess(kind, values, typical)
                 component = Component(
                     system=system,
                     name=COMPONENT_NAMES[kind],
-                    state=state if profile else _state_for_health(health),
+                    state=state,
                     health_score=health,
                     failure_probability=probability,
                     typical_delay_minutes=typical,
-                    delay_risk_minutes=delay_risk_minutes(probability, typical),
+                    delay_risk_minutes=risk,
                     next_exam_at=TODAY + timedelta(days=21),
                     if_wait_delay_minutes=if_wait,
                 )
                 session.add(component)
-                _add_readings(session, component, kind, health)
+                for metric, normal, _limit, _higher in signals:
+                    _add_readings(session, component, metric, normal, values[metric])
                 counts["components"] += 1
                 if number == 7 and position == 2 and kind == "doors":
                     session.add(
