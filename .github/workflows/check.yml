@@ -1,0 +1,16 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt httpx
+      - run: python -c "from fastapi.testclient import TestClient; from app.api import app; c = TestClient(app); assert c.get('/health').status_code == 200; rows = c.get('/fleet').json(); assert rows[0]['train'] == 'NM-07'"
