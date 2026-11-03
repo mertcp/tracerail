@@ -32,6 +32,14 @@
         <h2>Assets by state</h2>
         <div id="by-state"></div>
       </section>
+      <h2>Needs attention</h2>
+      <table>
+        <thead>
+          <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
+        </thead>
+        <tbody id="attention"></tbody>
+      </table>
+      <h2>Full fleet</h2>
       <table>
         <thead>
           <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
@@ -54,18 +62,23 @@
       });
     }
 
-    function drawFleet() {
-      var body = document.getElementById("fleet");
+    function fillTable(id, rows) {
+      var body = document.getElementById(id);
       body.innerHTML = "";
-      fleet.forEach(function (row) {
+      rows.forEach(function (row) {
         var tr = document.createElement("tr");
         if (row.id === selectedId) tr.className = "selected";
         tr.innerHTML = "<td>" + row.train + "</td><td>" + row.car + "</td><td>" + row.system
-          + "</td><td>" + row.component + "</td><td>" + row.state.replace("_", " ")
+          + "</td><td>" + row.component + "</td><td>" + row.state.replace(/_/g, " ")
           + "</td><td>" + row.delay_risk_minutes + "</td>";
         tr.onclick = function () { openAsset(row.id); };
         body.appendChild(tr);
       });
+    }
+
+    function drawFleet() {
+      fillTable("attention", fleet.filter(function (row) { return row.state !== "healthy"; }));
+      fillTable("fleet", fleet);
     }
 
     function drawCharts() {
@@ -103,12 +116,44 @@
       fetch("/assets/" + id).then(function (response) { return response.json(); }).then(drawDetail);
     }
 
+    function byMetric(readings) {
+      var grouped = {};
+      readings.forEach(function (reading) {
+        if (!grouped[reading.metric]) grouped[reading.metric] = [];
+        grouped[reading.metric].push(reading);
+      });
+      return grouped;
+    }
+
     function latestText(readings) {
-      var latest = {};
-      readings.forEach(function (reading) { latest[reading.metric] = reading.value; });
-      var names = Object.keys(latest);
+      var grouped = byMetric(readings);
+      var names = Object.keys(grouped);
       if (!names.length) return "none";
-      return names.map(function (name) { return name + " " + latest[name]; }).join(", ");
+      return names.map(function (name) {
+        var points = grouped[name];
+        return name + " " + points[points.length - 1].value;
+      }).join(", ");
+    }
+
+    function trendText(readings) {
+      var grouped = byMetric(readings);
+      var names = Object.keys(grouped);
+      if (!names.length) return "No readings.";
+      return names.map(function (name) {
+        var points = grouped[name];
+        return name + " moved from " + points[0].value + " to " + points[points.length - 1].value;
+      }).join(". ") + " over 14 days.";
+    }
+
+    function trainTree(train) {
+      var cars = {};
+      fleet.filter(function (row) { return row.train === train; }).forEach(function (row) {
+        if (!cars[row.car]) cars[row.car] = [];
+        cars[row.car].push(row.system + " " + row.state.replace(/_/g, " "));
+      });
+      return Object.keys(cars).sort().map(function (car) {
+        return "Car " + car + ": " + cars[car].join(", ");
+      }).join(". ");
     }
 
     function drawDetail(asset) {
@@ -116,12 +161,7 @@
         return row.system === asset.system && row.id !== asset.id && row.state !== "healthy";
       }).slice(0, 3);
       var readings = asset.readings;
-      var trend = "No readings.";
-      if (readings.length) {
-        var first = readings[0];
-        var last = readings[readings.length - 1];
-        trend = first.metric + " moved from " + first.value + " to " + last.value + " over 14 days.";
-      }
+      var trend = trendText(readings);
       var similarText = similar.length
         ? similar.map(function (row) { return row.train + " car " + row.car + " (" + row.delay_risk_minutes + " min)"; }).join(", ")
         : "None.";
@@ -138,6 +178,7 @@
         + "<p>" + asset.failure_probability + " × " + asset.typical_delay_minutes + " min = " + asset.delay_risk_minutes + " delay minutes at risk.</p>"
         + "<p>If we wait until the next exam: " + asset.if_wait_delay_minutes + " delay minutes.</p>"
         + "<p>" + trend + "</p>"
+        + "<p>" + trainTree(asset.train) + "</p>"
         + "<p>Other " + asset.system + " to watch: " + similarText + "</p>"
         + "<p><button id=\"recommend\">Recommend maintenance</button></p>"
         + draftBlock;

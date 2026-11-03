@@ -1,6 +1,6 @@
 # TraceRail CBM
 
-Living plan for this repo. Updated 3 Nov 2026. Status: code stays on this Mac. The Fly app was destroyed so it cannot bill. Deploy again only after Mert asks. Next step is the warning before agent-only notes are removed.
+Living plan for this repo. Updated 3 Nov 2026. Status: local demo at http://127.0.0.1:8000/ shows both measurements, the train's cars, and the assets that need attention. Deploy only after Mert asks. Next step is the warning before agent-only notes are removed.
 
 Open this file from the left file tree. In a new chat, say: read `PROJECT.md` and continue from the next unchecked step.
 
