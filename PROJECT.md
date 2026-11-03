@@ -63,6 +63,7 @@ Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with 
 - [ ] AI draft: action, window, delay minutes avoided, confidence; accept and edit
 - [ ] UI: fleet, asset with similar items and if-we-wait, two charts
 - [ ] Deploy, public GitHub, README with live URL, architecture, curl, and the 8-minute script
+- [ ] Before calling it finished: warn Mert, then remove agent-only notes (see below)
 
 ### Day split
 
@@ -104,6 +105,18 @@ Mert will walk a recruiter through this repo. The code should read like a system
 - Comment the delay-risk formula and any decision that the name does not show. Do not comment every function.
 - Skip extra layers, base classes, banners, and placeholder scaffolds.
 - After each step, Mert should be able to explain the changed file in a few sentences.
+
+## Before the project is finished
+
+Warn Mert first. Do not delete these notes until he agrees.
+
+Then remove everything that exists for the agent rather than for a recruiter:
+
+- This section, "How the code should read," and "How we work in Cursor."
+- `.cursor/rules/tracerail.mdc` and any other agent instructions.
+- Comments, commands, and files whose only job is to steer the agent or to hide that an agent wrote the code.
+
+Keep the product, the README, the demo script, and the delay-risk explanation. The plain coding style stays. The notes about that style do not.
 
 ## How we work in Cursor
 

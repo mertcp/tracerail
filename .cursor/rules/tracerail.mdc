@@ -14,3 +14,4 @@ Read `PROJECT.md` before changing scope. It is the plan.
 - Stack stays FastAPI, a simple UI, SQLite or Postgres, one JSON LLM call, TF-IDF for similar assets.
 - Ship a live URL. If time slips, stub the LLM and deploy the ranked fleet.
 - Write code Mert can explain aloud. Small files, straight functions, fleet words. No extra layers, banners, or a comment on every function.
+- Before the project is called finished, warn Mert, then follow "Before the project is finished" in `PROJECT.md`. Remove agent-only notes. Do not remove them earlier.
