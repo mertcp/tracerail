@@ -114,10 +114,16 @@ Warn Mert first. Do not delete these notes until he agrees.
 Then remove everything that exists for the agent rather than for a recruiter:
 
 - This section, "How the code should read," and "How we work in Cursor."
-- `.cursor/rules/tracerail.mdc` and any other agent instructions.
+- `.cursor/rules/tracerail.mdc` and any other agent instructions, except the cost-approval rule.
 - Comments, commands, and files whose only job is to steer the agent or to hide that an agent wrote the code.
 
 Keep the product, the README, the demo script, and the delay-risk explanation. The plain coding style stays. The notes about that style do not.
+
+## Cost approval
+
+Finish the code on this Mac. Do not deploy to the cloud until Mert says the demo is ready for recruiters.
+
+Any action that can cost money must stop first. State the amount, then ask exactly: "This will cost you this amount. Do you approve this action?" Do not continue until he says yes. This includes Fly.io, Azure, OpenAI, and any other paid service. Keep this rule when agent-only notes are removed.
 
 ## How we work in Cursor
 

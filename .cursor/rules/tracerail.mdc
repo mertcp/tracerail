@@ -12,6 +12,7 @@ Read `PROJECT.md` before changing scope. It is the plan.
 - One workflow: ingest, score, rank, AI maintenance draft, human accept or edit.
 - Call it an operational fleet twin: asset health plus a visible delay-risk formula. Do not add 3D, CAD, physics, Kafka, Kubernetes, SSO, or a neural remaining-life model.
 - Stack stays FastAPI, a simple UI, SQLite or Postgres, one JSON LLM call, TF-IDF for similar assets.
-- Ship a live URL. If time slips, stub the LLM and deploy the ranked fleet.
+- Finish the code on this Mac. Do not deploy, restart, or leave a cloud machine running until Mert asks.
 - Write code Mert can explain aloud. Small files, straight functions, fleet words. No extra layers, banners, or a comment on every function.
-- Before the project is called finished, warn Mert, then follow "Before the project is finished" in `PROJECT.md`. Remove agent-only notes. Do not remove them earlier.
+- Before the project is called finished, warn Mert, then follow "Before the project is finished" in `PROJECT.md`. Remove agent-only notes. Do not remove them earlier. Keep the cost-approval rule.
+- Any action that can cost Mert money must stop first. State the amount, then ask exactly: "This will cost you this amount. Do you approve this action?" Do not continue until he says yes. This includes Fly.io, Azure, OpenAI, and any other paid service.
