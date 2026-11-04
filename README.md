@@ -1,40 +1,24 @@
 # TraceRail
 
-Condition-based maintenance for a synthetic metro fleet. The job of the app is to keep delay minutes off the line by maintaining a component before it fails in service.
+**Operational fleet intelligence for condition-based maintenance — ranked by delay minutes at risk.**
 
-The trains do not report that they are healthy. They send measurements. TraceRail scores health and delay risk. A maintainer accepts or edits the maintenance line.
+Metro operators still lose timetable when a degrading door or brake fails in service, while maintenance is often calendar-driven. TraceRail ingests **measurements** (not “healthy” flags), scores health and delay risk, ranks the fleet, and drafts the depot action a maintainer can accept or edit—so failures move from the line into planned work.
 
-The demo runs on this Mac. It is not deployed. Open http://127.0.0.1:8000/ after starting it with the command below.
+Demo for solutions pre-sales: API-first, synthetic **Nordic Metro** fleet, runs locally. Companion project: [solar-warranty](https://github.com/mertcp/solar-warranty) (portfolio warranty & performance).
 
-All data is synthetic. Nordic Metro, trains NM-01 to NM-12. No operator, supplier, or vehicle data from a real project.
+**Repository:** [github.com/mertcp/tracerail](https://github.com/mertcp/tracerail)
 
-## What a recruiter can click
+---
 
-Open the live page. Train NM-07, car 2, door operator is first. Motor current and lock time have drifted. The page shows the delay-risk formula, the minutes at risk if the door stays in service, and other doors with the same pattern. Recommend maintenance, then accept or edit the line. `/docs` is the API a depot or TCMS system would call.
+## What you can show in five minutes
 
-## Measurements
+Open http://127.0.0.1:8000/ after starting the server below. **NM-07**, car 2, door operator leads the list. Click **doors** on the side-view train—the maintenance line appears with motor current, lock time, and the delay-risk formula. Accept or edit. Show **/docs** for how a TCMS or depot system posts the next reading.
 
-| System | Signals |
-|---|---|
-| Doors | Motor current (A), lock time (s) |
-| Brakes | Cylinder pressure (bar), pad distance (mm) |
-| HVAC | Supply-to-return temperature gap (°C), compressor current (A) |
-| Traction | Inverter temperature (°C), phase current (A) |
+Name aloud: measurements in, ranked fleet out, human approves the work order narrative, optional LLM when `OPENAI_API_KEY` is set (rule-based draft otherwise).
 
-Delay risk is `failure probability × typical delay minutes`. The limits used to turn a reading into a probability are demo limits, not a manufacturer's specification.
+---
 
-## Architecture
-
-```
-measurements → FastAPI → health and delay risk → fleet page
-                      ↘ one model call writes the maintenance line
-```
-
-SQLite holds the fleet and is seeded on an empty start. The page is one HTML file. The model call is optional: set `OPENAI_API_KEY` and the recommend button asks the model. Without that key, the same numbers produce the sentence.
-
-A production version of this would sit on Azure, with the depot system posting readings to the API. This demo is a single container so a stranger can open it.
-
-## Run it
+## Run locally
 
 ```bash
 python -m venv .venv
@@ -44,25 +28,67 @@ python -m venv .venv
 
 Open http://127.0.0.1:8000/
 
+---
+
+## Signals (demo limits, not OEM specs)
+
+| System | Measurements |
+|--------|----------------|
+| Doors | Motor current (A), lock time (s) |
+| Brakes | Cylinder pressure (bar), pad distance (mm) |
+| HVAC | Supply–return ΔT (°C), compressor current (A) |
+| Traction | Inverter temperature (°C), phase current (A) |
+
+**Delay risk** = failure probability × typical delay minutes (shown on the asset view).
+
+---
+
+## Architecture
+
+```
+telemetry → FastAPI + SQLite → health & delay risk → fleet UI
+                          ↘ maintenance draft (LLM if OPENAI_API_KEY)
+```
+
+Production story in conversation: Azure-hosted API with depot ingest. This repo is a single container-friendly demo.
+
+---
+
+## LinkedIn showcase copy
+
+See **[LINKEDIN.md](LINKEDIN.md)** for headline, short description, and highlight lines.
+
+---
+
+## API samples
+
 ```bash
-curl -s http://127.0.0.1:8000/fleet | head -c 400
-curl -s -X POST http://127.0.0.1:8000/assets/1/readings \
+curl -s http://127.0.0.1:8000/fleet | python3 -m json.tool | head -30
+curl -s -X POST http://127.0.0.1:8000/assets/<ID>/readings \
   -H 'content-type: application/json' \
   -d '{"metric":"motor_current_a","value":4.2}'
-curl -s -X POST http://127.0.0.1:8000/assets/1/recommend
+curl -s -X POST http://127.0.0.1:8000/assets/<ID>/recommend
 ```
+
+Replace `<ID>` with the NM-07 door asset from `/fleet`. Open `/docs` for events and recommendations.
+
+---
 
 ## Eight-minute walkthrough
 
-1. A door that fails in service holds the train. Maintenance is still booked by the calendar.
-2. The fleet list is ranked by delay minutes. This is the product, not a notebook.
-3. Open NM-07, car 2. Motor current and lock time have risen. The formula is on the page.
-4. If that door waits until the next exam, the delay minutes get worse.
-5. Recommend maintenance. Accept the line, or edit it. The engineer stays in control.
-6. Two other doors are already drifting the same way.
-7. Doors account for more delay minutes than brakes, HVAC, or traction.
-8. `/docs` is where a TCMS or depot system posts the next reading.
+1. Platform delays come from in-service failures; maintenance is still often calendar-based.
+2. Fleet view ranks by **delay minutes at risk**—the product metric, not a notebook chart.
+3. NM-07 door: both measurements drifted; formula and “if we wait” are on screen.
+4. Click the system on the train; review the draft for tonight.
+5. Accept or edit—engineer stays in control.
+6. Peer doors show the same pattern (fleet learning, not one-off).
+7. Charts: where delay exposure concentrates by system.
+8. `/docs`: integration point for the next telemetry POST.
 
-## Demo script, said aloud
+**Said aloud:** *“Nordic Metro was holding trains at the platform on door faults. TraceRail reads motor current and lock time, quantifies delay risk, and drafts inspect-tonight work the maintainer can accept—before the failure hits the timetable.”*
 
-"Nordic Metro was finding door faults at the platform. TraceRail takes motor current and lock time from the door controller, scores the chance of a delay, and drafts the work for tonight. The maintainer accepts it. The same pattern is already on two other trains."
+---
+
+## Disclaimer
+
+All trains, limits, and events are **synthetic**. No operator, supplier, or vehicle data from any real project.

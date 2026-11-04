@@ -1,18 +1,26 @@
-# TraceRail CBM
+# TraceRail — project plan
 
-Living plan for this repo. Updated 3 Nov 2026. Status: local demo at http://127.0.0.1:8000/ shows both measurements, the train's cars, and the assets that need attention. Deploy only after Mert asks. Next step is the warning before agent-only notes are removed.
+Living plan for **tracerail** ([mertcp/tracerail](https://github.com/mertcp/tracerail)). Updated 4 Nov 2026.
+
+**Status:** Local demo at http://127.0.0.1:8000/ — side-view train, measurements, delay-risk formula, maintenance draft with accept/edit. Deploy only after Mert asks. Next step: warn, then remove agent-only notes (see below).
 
 Open this file from the left file tree. In a new chat, say: read `PROJECT.md` and continue from the next unchecked step.
 
+## Product positioning (LinkedIn / recruiter)
+
+**Headline:** Operational fleet intelligence for condition-based maintenance — ranked by delay minutes at risk.
+
+**One-liner:** Ingest measurements, score health and delay risk, rank the fleet, draft depot work—maintainer accepts or edits before the failure hits the timetable.
+
+**Showcase copy:** [LINKEDIN.md](LINKEDIN.md). README uses the same professional tone.
+
 ## What we are building
 
-TraceRail is a demo SaaS for railway condition-based maintenance. It watches a synthetic fleet, ranks assets by risk of causing delay, and drafts a maintenance action a human can accept or edit. The job of the product is to move failures from the line into the depot.
+TraceRail is a **business-facing demo SaaS** for railway condition-based maintenance on a synthetic **Nordic Metro** fleet. It ranks assets by **delay minutes at risk**, surfaces both signals per system, and drafts maintenance a human can accept or edit—moving failures from the line into the depot.
 
-Interview line: an operational fleet twin. Each asset has a live health state and a delay-risk forecast. Maintenance is recommended before the failure hits the timetable. The model is the asset record plus the health and delay-risk calculation. It is not a 3D or physics twin.
+**Operational fleet twin:** asset record + health + visible delay-risk math. Not 3D, CAD, or physics simulation.
 
-Pitch: detect degrading doors, brakes, HVAC, and traction early; open the right work order before the train holds the line.
-
-Audience: a CV demo for cloud / SaaS solutions pre-sales roles. Mert currently works as a system engineer at a railway vehicle manufacturer. Use no data from that job.
+**Audience:** CV and cloud / SaaS solutions pre-sales. **Data:** synthetic only—no OEM or employer vehicle data.
 
 ## Why this shape
 
@@ -42,7 +50,7 @@ Done means a public GitHub repo and a live URL a stranger can use with no setup.
 
 ## In the demo, a recruiter can
 
-Open the live URL, see a degrading door on Train 07, run Recommend maintenance, accept “inspect the door operator tonight — about 12 delay minutes avoided,” see similar assets and two charts, then open the API docs and see how a TCMS or depot system would post events.
+Open the live URL, see Train 07, click the door on the side view, read the maintenance line (inspect the door operator tonight — about 13 delay minutes avoided), accept or edit it, see the two charts, then open the API docs and see how a TCMS or depot system would post events.
 
 ## Out of scope
 
@@ -81,7 +89,7 @@ Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with 
 1. Failures in service become delay minutes. Maintenance is still calendar-based.
 2. Fleet view. This is a product, not a notebook.
 3. Train 07 door. Health trend and if-we-wait delay minutes.
-4. Recommend maintenance. Accept or edit the draft.
+4. Click the door on the side view. Accept or edit the draft.
 5. Similar assets. This is a pattern, not a one-off.
 6. Charts: hotspot by system.
 7. OpenAPI. A TCMS or depot system posts events here. The engineer stays in control.

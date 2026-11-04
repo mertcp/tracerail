@@ -15,7 +15,11 @@ from app.recommend import draft
 from app.scoring import assess
 from app.seed import seed
 
-app = FastAPI(title="TraceRail", version="0.1.0")
+app = FastAPI(
+    title="TraceRail",
+    description="Condition-based maintenance demo — delay-risk ranked fleet, synthetic Nordic Metro.",
+    version="0.1.0",
+)
 
 
 def session_scope():
