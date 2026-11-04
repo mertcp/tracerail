@@ -113,7 +113,8 @@ Warn Mert first. Do not delete these notes until he agrees.
 
 Then remove everything that exists for the agent rather than for a recruiter:
 
-- This section, "How the code should read," and "How we work in Cursor."
+- This section, "How the code should read," "How we work in Cursor," and the agent/Cursor half of "Token and deploy efficiency."
+- Keep the deploy checklist (scale-to-zero, one small VM, stub without OpenAI, no auto-deploy) next to Cost approval if it still helps Mert.
 - `.cursor/rules/tracerail.mdc` and any other agent instructions, except the cost-approval rule.
 - Comments, commands, and files whose only job is to steer the agent or to hide that an agent wrote the code.
 
@@ -125,10 +126,33 @@ Finish the code on this Mac. Do not deploy to the cloud until Mert says the demo
 
 Any action that can cost money must stop first. State the amount, then ask exactly: "This will cost you this amount. Do you approve this action?" Do not continue until he says yes. This includes Fly.io, Azure, OpenAI, and any other paid service. Keep this rule when agent-only notes are removed.
 
+## Token and deploy efficiency
+
+Mert asked agents to stay lean on tokens and to prefer cheap deploy paths. Keep this in every chat on this repo.
+
+### Agent / Cursor tokens
+
+- Read `PROJECT.md` and the few files the task needs. Do not re-scan the whole tree or paste long file dumps into the chat.
+- Prefer short replies and small diffs. Skip walkthrough fluff, unused options, and re-explaining locked decisions.
+- Stay in one local chat for coding. Do not spin a Cloud Agent, parallel subagents, or a full PR loop for a one-line tweak unless Mert asks.
+- Do not re-deploy, restart, or leave a remote machine running as a way to “verify” work. Local `uvicorn` is enough until he asks for a live URL.
+- Keep the recommend path as one small JSON LLM call (or the stub). Never call the model on page load, on fleet list, or in a loop over assets.
+
+### App deploy (when Mert asks)
+
+Prefer the smallest always-cheap host, not Azure, for the weekend demo:
+
+1. **Scale to zero / auto-stop** — On Fly, set `auto_stop_machines = "stop"` (or `"suspend"`) and `min_machines_running = 0`. The current `fly.toml` keeps one machine up (`auto_stop_machines = "off"`, `min_machines_running = 1`); that burns money with no traffic. Change it before redeploying.
+2. **One small VM** — Keep the 256mb shared CPU single machine. No Postgres add-on: SQLite in the container (or a volume) is enough for the demo.
+3. **No OpenAI on the public demo unless needed** — Recruiter click-through works with the stub. Only set `OPENAI_API_KEY` for a live AI draft when Mert wants that, and still one JSON call per recommend click.
+4. **Cheaper host options for a CV link** — Render free web service or Railway hobby with sleep/scale-down often costs less idle time than a Fly machine left on. Azure stays the production story in the README, not the weekend bill.
+5. **CI stays check-only** — Do not add auto-deploy on every push. Deploy by hand when Mert asks, so agent and CI tokens are not spent on redeploys.
+
 ## How we work in Cursor
 
 - This folder is the project. Open it before coding.
 - This file is the memory. Update it when a decision changes.
 - `.cursor/rules/tracerail.mdc` keeps a new chat inside this scope.
 - Stay in one chat until the URL is live.
+- Be token-lean: see "Token and deploy efficiency" above.
 - Resume line: read `PROJECT.md` and continue from the next unchecked step.
