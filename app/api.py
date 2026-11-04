@@ -98,6 +98,12 @@ def home():
     return FileResponse(page)
 
 
+@app.get("/static/metro-train.jpg", include_in_schema=False)
+def train_photo():
+    photo = Path(__file__).resolve().parent / "static" / "metro-train.jpg"
+    return FileResponse(photo)
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}

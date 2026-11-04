@@ -18,7 +18,7 @@
       --radius: 8px;
       --shadow: 0 0 0 1px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.06);
     }
-    body { font-family: "Roboto", system-ui, sans-serif; margin: 0; color: var(--text); background: var(--bg); line-height: 1.5; }
+    body { font-family: "Roboto", system-ui, sans-serif; margin: 0; color: var(--text); background: var(--bg); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
     .topbar {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -32,9 +32,20 @@
       display: inline-flex; align-items: center; justify-content: center;
     }
     .subtitle { color: var(--muted); font-size: 14px; margin: 6px 0 0 42px; font-weight: 400; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
-    main { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; align-items: start; }
-    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 12px; flex: 1; width: 100%; box-sizing: border-box; }
+    .menu { display: flex; flex-wrap: wrap; gap: 12px; }
+    .menu button, .menu a {
+      font: inherit; padding: 12px 22px; border-radius: 24px;
+      border: 1px solid var(--primary); background: var(--surface);
+      color: var(--primary); cursor: pointer; font-weight: 500;
+      text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .menu button:hover, .menu a:hover, .menu button.active {
+      background: var(--primary); color: #fff;
+    }
+    .hint { color: var(--muted); font-size: 15px; margin: 28px 0 0; }
+    .hint.hidden, .view { display: none; }
+    .view.open { display: block; margin-top: 24px; }
     table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 14px; }
     th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
     tr { cursor: pointer; }
@@ -47,32 +58,65 @@
       margin-bottom: 20px;
     }
     section h2, .card h2 { font-size: 16px; font-weight: 500; margin: 0 0 12px; }
-    button {
+    button.action {
       font: inherit; padding: 8px 16px; border-radius: 20px; border: none;
       background: var(--primary); color: #fff; cursor: pointer; font-weight: 500;
     }
-    button:hover { background: #004182; }
-    textarea { width: 100%; min-height: 72px; font: inherit; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; }
+    button.action:hover { background: #004182; }
+    textarea { width: 100%; min-height: 72px; font: inherit; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-sizing: border-box; }
     .bar { height: 8px; background: var(--accent); margin-top: 4px; border-radius: 4px; }
     .muted { color: var(--muted); font-size: 13px; }
-    #train-panel { margin-bottom: 0; }
     #train svg { display: block; max-width: 760px; }
     #train text { font-family: "Roboto", system-ui, sans-serif; font-size: 13px; }
     .fleet-heading { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
+    .hero-train { margin-top: auto; padding: 32px 24px 40px; text-align: center; }
+    .hero-train img {
+      max-width: 780px; width: 100%; height: auto;
+      border-radius: 12px; box-shadow: var(--shadow);
+      background: #d8dde3;
+    }
+    .hero-train p { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
   </style>
 </head>
 <body>
   <header class="topbar">
     <h1><span class="logo" aria-hidden="true">TR</span> TraceRail</h1>
-    <p class="subtitle">Nordic Metro — fleet ranked by delay minutes at risk. Select a system to review maintenance readiness.</p>
+    <p class="subtitle">Nordic Metro — ranked by delay minutes at risk.</p>
   </header>
   <div class="wrap">
-  <section id="train-panel" class="card">
-    <h2 id="train-name">Train</h2>
-    <div id="train"></div>
-  </section>
-  <main>
-    <div>
+    <nav class="menu" aria-label="Fleet views">
+      <button type="button" data-view="queue">Priority queue</button>
+      <button type="button" data-view="train">Train view</button>
+      <button type="button" data-view="charts">Delay charts</button>
+      <button type="button" data-view="work">Maintenance draft</button>
+      <a href="/docs">API docs</a>
+    </nav>
+    <p class="hint" id="hint">Choose a view to walk the fleet. The train stays at the bottom of the page.</p>
+
+    <div id="view-queue" class="view">
+      <p class="fleet-heading">Priority maintenance queue</p>
+      <table>
+        <thead>
+          <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
+        </thead>
+        <tbody id="attention"></tbody>
+      </table>
+      <p class="fleet-heading" style="margin-top:24px">Full fleet register</p>
+      <table>
+        <thead>
+          <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
+        </thead>
+        <tbody id="fleet"></tbody>
+      </table>
+    </div>
+
+    <section id="view-train" class="view card">
+      <h2 id="train-name">Train</h2>
+      <p class="muted">Click a system on a car to open the maintenance draft.</p>
+      <div id="train"></div>
+    </section>
+
+    <div id="view-charts" class="view">
       <section>
         <h2>Delay exposure by system</h2>
         <div id="by-system"></div>
@@ -81,35 +125,45 @@
         <h2>Fleet condition summary</h2>
         <div id="by-state"></div>
       </section>
-      <p class="fleet-heading">Priority maintenance queue</p>
-      <table>
-        <thead>
-          <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
-        </thead>
-        <tbody id="attention"></tbody>
-      </table>
-      <p class="fleet-heading">Full fleet register</p>
-      <table>
-        <thead>
-          <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
-        </thead>
-        <tbody id="fleet"></tbody>
-      </table>
     </div>
-    <section id="detail" class="card"><p class="muted">Choose a train system to open maintenance readiness and delay-risk metrics.</p></section>
-  </main>
+
+    <section id="view-work" class="view card">
+      <div id="detail"><p class="muted">Choose a train system to open maintenance readiness and delay-risk metrics.</p></div>
+    </section>
   </div>
+  <footer class="hero-train">
+    <img src="/static/metro-train.jpg" alt="Three-quarter 3D view of a Nordic Metro train">
+    <p>Synthetic Nordic Metro — visual only, not a physics twin.</p>
+  </footer>
   <script>
     var fleet = [];
     var selectedId = null;
+    var fills = { act_tonight: "#e4bdb6", degrading: "#ead9a8", healthy: "#d3ddd0" };
 
     function load() {
       fetch("/fleet").then(function (response) { return response.json(); }).then(function (rows) {
         fleet = rows;
+        if (!selectedId && rows.length) selectedId = rows[0].id;
         drawFleet();
         drawCharts();
-        if (!selectedId && rows.length) openAsset(rows[0].id);
       });
+    }
+
+    document.querySelector(".menu").addEventListener("click", function (event) {
+      var button = event.target.closest("button[data-view]");
+      if (!button) return;
+      showView(button.getAttribute("data-view"));
+    });
+
+    function showView(name) {
+      document.querySelectorAll(".menu button").forEach(function (button) {
+        button.classList.toggle("active", button.getAttribute("data-view") === name);
+      });
+      document.getElementById("hint").classList.add("hidden");
+      ["queue", "train", "charts", "work"].forEach(function (view) {
+        document.getElementById("view-" + view).classList.toggle("open", view === name);
+      });
+      if (name === "work" && selectedId) openAsset(selectedId);
     }
 
     function fillTable(id, rows) {
@@ -121,12 +175,13 @@
         tr.innerHTML = "<td>" + row.train + "</td><td>" + row.car + "</td><td>" + row.system
           + "</td><td>" + row.component + "</td><td>" + row.state.replace(/_/g, " ")
           + "</td><td>" + row.delay_risk_minutes + "</td>";
-        tr.onclick = function () { openAsset(row.id); };
+        tr.onclick = function () {
+          openAsset(row.id);
+          showView("work");
+        };
         body.appendChild(tr);
       });
     }
-
-    var fills = { act_tonight: "#e4bdb6", degrading: "#ead9a8", healthy: "#d3ddd0" };
 
     function drawFleet() {
       fillTable("attention", fleet.filter(function (row) { return row.state !== "healthy"; }));
@@ -206,7 +261,10 @@
         block.setAttribute("tabindex", "0");
         block.setAttribute("aria-label", row.system + ", car " + row.car);
         block.style.cursor = "pointer";
-        block.onclick = function () { openAsset(row.id); };
+        block.onclick = function () {
+          openAsset(row.id);
+          showView("work");
+        };
         svg.appendChild(block);
         var text = document.createElementNS(svg.namespaceURI, "text");
         text.setAttribute("x", bx + width / 2);
@@ -288,7 +346,7 @@
       var draft = asset.recommendations[asset.recommendations.length - 1];
       var draftBlock = draft
         ? "<p>" + draft.action + "</p><p class=\"muted\">" + draft.window + " · " + draft.delay_minutes_avoided + " delay minutes · " + draft.status + "</p>"
-          + "<textarea id=\"edit\">" + draft.action + "</textarea><p><button id=\"accept\">Accept</button> <button id=\"save-edit\">Save edit</button></p>"
+          + "<textarea id=\"edit\">" + draft.action + "</textarea><p><button class=\"action\" id=\"accept\">Accept</button> <button class=\"action\" id=\"save-edit\">Save edit</button></p>"
         : "<p class=\"muted\">No recommendation yet.</p>";
       document.getElementById("detail").innerHTML =
         "<h2>" + asset.train + " · car " + asset.car + " · maintenance readiness</h2>"

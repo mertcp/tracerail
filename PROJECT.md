@@ -2,7 +2,7 @@
 
 Living plan for **tracerail** ([mertcp/tracerail](https://github.com/mertcp/tracerail)). Updated 4 Nov 2026.
 
-**Status:** Local demo at http://127.0.0.1:8000/ — side-view train, measurements, delay-risk formula, maintenance draft with accept/edit. Deploy only after Mert asks. Next step: warn, then remove agent-only notes (see below).
+**Status:** Local demo at http://127.0.0.1:8000/ — button menu on home, then train view, measurements, delay-risk formula, maintenance draft with accept/edit. Deploy only after Mert asks. Next step: warn, then remove agent-only notes (see below).
 
 Open this file from the left file tree. In a new chat, say: read `PROJECT.md` and continue from the next unchecked step.
 
@@ -38,7 +38,7 @@ Done means a public GitHub repo and a live URL a stranger can use with no setup.
 
 - Domain: railway condition-based maintenance. The customer metric is delay minutes.
 - Workflow: ingest, score, rank, AI draft, human accept or edit.
-- Screens: fleet, asset detail, ops charts.
+- Screens: landing menu (priority queue, train view, delay charts, maintenance draft, API docs), then those views. Decorative 3D train photo at the bottom of the home page — not a 3D or physics twin.
 - Twin depth: train, car, system, component tree; state badge (healthy, degrading, act tonight); one “if we wait” line with expected delay minutes until the next exam.
 - World: Nordic Metro, 12 trains, doors / brakes / HVAC / traction, about 80 assets. Seed a few obvious degrading trends, including a door on Train 07.
 - Inputs are two measurements per system. Doors: motor current and lock time. Brakes: cylinder pressure and pad distance. HVAC: supply-to-return temperature gap and compressor current. Traction: inverter temperature and phase current. TraceRail scores health and delay risk from those numbers. The model reads the same measurements and decides the maintenance for the upcoming days.

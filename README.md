@@ -12,7 +12,7 @@ Demo for solutions pre-sales: API-first, synthetic **Nordic Metro** fleet, runs 
 
 ## What you can show in five minutes
 
-Open http://127.0.0.1:8000/ after starting the server below. **NM-07**, car 2, door operator leads the list. Click **doors** on the side-view train—the maintenance line appears with motor current, lock time, and the delay-risk formula. Accept or edit. Show **/docs** for how a TCMS or depot system posts the next reading.
+Open http://127.0.0.1:8000/ after starting the server below. The home page is a short menu: **Priority queue**, **Train view**, **Delay charts**, **Maintenance draft**, and **API docs**. Open **Train view**, click **doors** on NM-07—the maintenance line appears with motor current, lock time, and the delay-risk formula. Accept or edit. Show **/docs** for how a TCMS or depot system posts the next reading.
 
 Name aloud: measurements in, ranked fleet out, human approves the work order narrative, optional LLM when `OPENAI_API_KEY` is set (rule-based draft otherwise).
 
