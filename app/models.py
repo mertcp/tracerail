@@ -17,7 +17,7 @@ class Train(Base):
     __tablename__ = "trains"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    code: Mapped[str] = mapped_column(String(16), unique=True)  # NM-07
+    code: Mapped[str] = mapped_column(String(16), unique=True)  # MM-07
     vehicle_class: Mapped[str] = mapped_column(String(32), default="metro")
 
     cars: Mapped[list["Car"]] = relationship(back_populates="train")
@@ -60,7 +60,6 @@ class Component(Base):
     health_score: Mapped[float] = mapped_column(Float, default=100)
     failure_probability: Mapped[float] = mapped_column(Float, default=0)
     typical_delay_minutes: Mapped[float] = mapped_column(Float, default=0)
-    delay_risk_minutes: Mapped[float] = mapped_column(Float, default=0)
     next_exam_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     # Expected delay minutes if the asset stays in service until next_exam_at.
     if_wait_delay_minutes: Mapped[float] = mapped_column(Float, default=0)

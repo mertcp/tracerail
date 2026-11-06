@@ -16,7 +16,7 @@ Open this file from the left file tree. In a new chat, say: read `PROJECT.md` an
 
 ## What we are building
 
-TraceRail is a **business-facing demo SaaS** for railway condition-based maintenance on a synthetic **Nordic Metro** fleet. It ranks assets by **delay minutes at risk**, surfaces both signals per system, and drafts maintenance a human can accept or edit—moving failures from the line into the depot.
+TraceRail is a **business-facing demo SaaS** for railway condition-based maintenance on a synthetic **UK Regional** fleet. It ranks assets by **delay minutes at risk**, surfaces both signals per system, and drafts maintenance a human can accept or edit—moving failures from the line into the depot.
 
 **Operational fleet twin:** asset record + health + visible delay-risk math. Not 3D, CAD, or physics simulation.
 
@@ -38,9 +38,9 @@ Done means a public GitHub repo and a live URL a stranger can use with no setup.
 
 - Domain: railway condition-based maintenance. The customer metric is delay minutes.
 - Workflow: ingest, score, rank, AI draft, human accept or edit.
-- Screens: landing menu (priority queue, train view, delay charts, maintenance draft, API docs), then those views. Decorative 3D train photo at the bottom of the home page — not a 3D or physics twin.
+- Screens: menu (priority queue with train location, maintenance draft, embedded API docs), back navigation between views.
 - Twin depth: train, car, system, component tree; state badge (healthy, degrading, act tonight); one “if we wait” line with expected delay minutes until the next exam.
-- World: Nordic Metro, 12 trains, doors / brakes / HVAC / traction, about 80 assets. Seed a few obvious degrading trends, including a door on Train 07.
+- World: UK Regional, 12 trains, doors / brakes / HVAC / traction, about 80 assets. Seed a few obvious degrading trends, including a door on Train 07.
 - Inputs are two measurements per system. Doors: motor current and lock time. Brakes: cylinder pressure and pad distance. HVAC: supply-to-return temperature gap and compressor current. Traction: inverter temperature and phase current. TraceRail scores health and delay risk from those numbers. The model reads the same measurements and decides the maintenance for the upcoming days.
 - Delay risk: failure probability times typical delay minutes. The formula stays visible in the UI.
 - Stack: FastAPI, a simple UI, SQLite or Postgres, one LLM call that returns JSON, TF-IDF for similar assets.
@@ -50,7 +50,7 @@ Done means a public GitHub repo and a live URL a stranger can use with no setup.
 
 ## In the demo, a recruiter can
 
-Open the live URL, see Train 07, click the door on the side view, read the maintenance line (inspect the door operator tonight — about 13 delay minutes avoided), accept or edit it, see the two charts, then open the API docs and see how a TCMS or depot system would post events.
+Open the live URL, use the priority queue (location column), open MM-07 door, read the maintenance line, accept or edit, use **Back**, then open embedded API docs for TCMS ingest.
 
 ## Out of scope
 
@@ -88,7 +88,7 @@ Freeze features at the end of day 2 if day 3 is short. A live ranked fleet with 
 
 1. Failures in service become delay minutes. Maintenance is still calendar-based.
 2. Fleet view. This is a product, not a notebook.
-3. Train 07 door. Health trend and if-we-wait delay minutes.
+3. MM-07 door. Health trend and if-we-wait delay minutes.
 4. Click the door on the side view. Accept or edit the draft.
 5. Similar assets. This is a pattern, not a one-off.
 6. Charts: hotspot by system.

@@ -2,7 +2,7 @@
 
 The train sends currents, times, pressures, and temperatures.
 It does not send a health status or a maintenance instruction.
-The limits below are demo limits for Nordic Metro, not a manufacturer's specification.
+The limits below are demo limits for UK Regional, not a manufacturer's specification.
 """
 
 # Each signal is metric, normal value, limit, True when a higher reading is worse.
@@ -26,8 +26,8 @@ SIGNALS = {
 }
 
 
-def delay_risk_minutes(failure_probability, typical_delay_minutes):
-    """delay_risk = failure_probability × typical_delay_minutes"""
+def _minutes_at_risk(failure_probability, typical_delay_minutes):
+    """failure_probability × typical_delay_minutes (internal scoring only)."""
     probability = min(max(failure_probability, 0.0), 1.0)
     delay = max(typical_delay_minutes, 0.0)
     return round(probability * delay, 1)
@@ -64,7 +64,7 @@ def assess(kind, values, typical_delay_minutes):
         state = "degrading"
     else:
         state = "healthy"
-    risk = delay_risk_minutes(probability, typical_delay_minutes)
+    risk = _minutes_at_risk(probability, typical_delay_minutes)
     if state == "healthy":
         if_wait = risk
     else:

@@ -13,7 +13,8 @@ import os
 import urllib.error
 import urllib.request
 
-from app.scoring import SIGNALS
+from app.maintenance_plan import action_text
+from app.scoring import SIGNALS, assess
 
 WINDOWS = ("tonight", "within 3 days", "before the next exam")
 
@@ -38,6 +39,16 @@ def _measurements(component):
     return described
 
 
+def _risk_and_wait(component):
+    values = {}
+    for reading in sorted(component.readings, key=lambda item: item.recorded_at):
+        values[reading.metric] = reading.value
+    _health, _prob, _state, risk, waiting = assess(
+        component.system.kind, values, component.typical_delay_minutes
+    )
+    return risk, waiting
+
+
 def brief(component):
     """Bundle the inputs the model is allowed to use."""
     system = component.system
@@ -58,7 +69,6 @@ def brief(component):
         "measurements": _measurements(component),
         "failure_probability": component.failure_probability,
         "typical_delay_minutes": component.typical_delay_minutes,
-        "delay_risk_minutes": component.delay_risk_minutes,
         "if_wait_delay_minutes": component.if_wait_delay_minutes,
         "next_exam_at": component.next_exam_at.isoformat() if component.next_exam_at else None,
         "recent_events": events,
@@ -67,31 +77,13 @@ def brief(component):
 
 def draft_from_rules(component):
     """Fallback when no API key or the model call fails."""
-    name = component.name.lower()
-    risk = component.delay_risk_minutes
-    waiting = component.if_wait_delay_minutes
+    risk, _waiting = _risk_and_wait(component)
+    action = action_text(component)
     if component.state == "act_tonight":
-        return (
-            "Inspect the {0} tonight. About {1:g} delay minutes can be avoided.".format(name, risk),
-            "tonight",
-            risk,
-            0.8,
-        )
+        return (action, "tonight", risk, 0.8)
     if component.state == "degrading":
-        return (
-            "Schedule the {0} within 3 days. Waiting leaves about {1:g} delay minutes at risk.".format(
-                name, waiting
-            ),
-            "within 3 days",
-            risk,
-            0.6,
-        )
-    return (
-        "Leave the {0} in service until the next exam.".format(name),
-        "before the next exam",
-        risk,
-        0.5,
-    )
+        return (action, "within 3 days", risk, 0.6)
+    return (action, "before the next exam", risk, 0.5)
 
 
 def _parse(payload):
@@ -126,7 +118,7 @@ def draft_from_llm(component):
                     "Reply with JSON keys action, window, delay_minutes_avoided, confidence. "
                     "window must be tonight, within 3 days, or before the next exam. "
                     "action is one sentence a maintainer can accept or edit. "
-                    "delay_minutes_avoided should stay close to delay_risk_minutes. "
+                    "delay_minutes_avoided should reflect measured underperformance. "
                     "confidence is a number from 0 to 1."
                 ),
             },

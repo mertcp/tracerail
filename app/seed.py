@@ -1,11 +1,12 @@
-"""Synthetic Nordic Metro fleet. No data from real vehicles or suppliers."""
+"""Synthetic UK Regional fleet. No data from real vehicles or suppliers."""
 
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
 from app.db import create_tables, get_session
-from app.models import Base, Car, Component, Event, Reading, System, Train
+from app.models import Base, Car, Component, Event, Reading, Recommendation, System, Train
+from app.recommend import draft
 from app.scoring import SIGNALS, assess
 from app.db import ENGINE
 
@@ -53,7 +54,7 @@ def _add_readings(session: Session, component: Component, metric: str, start: fl
 def seed(session: Session) -> dict:
     counts = {"trains": 0, "components": 0}
     for number in range(1, 13):
-        train = Train(code="NM-{0:02d}".format(number), vehicle_class="metro")
+        train = Train(code="MM-{0:02d}".format(number), vehicle_class="metro")
         session.add(train)
         counts["trains"] += 1
         for position in (1, 2):
@@ -75,7 +76,7 @@ def seed(session: Session) -> dict:
                     else:
                         end = ends[index]
                     values[metric] = end
-                health, probability, state, risk, if_wait = assess(kind, values, typical)
+                health, probability, state, _risk, if_wait = assess(kind, values, typical)
                 component = Component(
                     system=system,
                     name=COMPONENT_NAMES[kind],
@@ -83,7 +84,6 @@ def seed(session: Session) -> dict:
                     health_score=health,
                     failure_probability=probability,
                     typical_delay_minutes=typical,
-                    delay_risk_minutes=risk,
                     next_exam_at=TODAY + timedelta(days=21),
                     if_wait_delay_minutes=if_wait,
                 )
@@ -100,6 +100,19 @@ def seed(session: Session) -> dict:
                             caused_delay_minutes=8.0,
                         )
                     )
+    for component in session.query(Component).filter(Component.state != "healthy").all():
+        action, window, avoided, confidence = draft(component)
+        session.add(
+            Recommendation(
+                component=component,
+                created_at=TODAY,
+                action=action,
+                window=window,
+                delay_minutes_avoided=avoided,
+                confidence=confidence,
+                status="draft",
+            )
+        )
     session.commit()
     return counts
 

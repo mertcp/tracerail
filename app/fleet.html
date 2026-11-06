@@ -2,152 +2,589 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>TraceRail — Nordic Metro fleet</title>
+  <title>TraceRail — UK Regional fleet</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f3f2ef;
-      --surface: #fff;
-      --text: #191919;
-      --muted: #666;
-      --border: #e0e0e0;
-      --primary: #0a66c2;
-      --accent: #8a3b2b;
-      --radius: 8px;
-      --shadow: 0 0 0 1px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.06);
+      --bg: #eef1f4;
+      --surface: #ffffff;
+      --text: #1a2332;
+      --muted: #5c6578;
+      --border: #d8dee8;
+      --border-strong: #c2cad6;
+      --primary: #0b4f8a;
+      --primary-hover: #083d6b;
+      --primary-soft: #e8f1fa;
+      --accent: #9a3412;
+      --queue-bg: #fdf8f5;
+      --queue-accent: #a84b2a;
+      --queue-head: #f5ebe4;
+      --register-bg: #f3f8f5;
+      --register-accent: #2f6b4f;
+      --register-head: #e8f0eb;
+      --draft-bg: #f5f8fc;
+      --draft-accent: #0b4f8a;
+      --draft-head: #e8f1fa;
+      --draft-bar-0: #eef4fa;
+      --draft-bar-0-head: #dfeaf4;
+      --draft-bar-0-stripe: #6b94b8;
+      --draft-bar-1: #edf2f8;
+      --draft-bar-1-head: #dce6f2;
+      --draft-bar-1-stripe: #5c85ae;
+      --draft-bar-2: #f0f3f9;
+      --draft-bar-2-head: #e3e9f3;
+      --draft-bar-2-stripe: #647a9e;
+      --draft-bar-3: #eef1f7;
+      --draft-bar-3-head: #dfe4ef;
+      --draft-bar-3-stripe: #7389a8;
+      --draft-bar-4: #f1f4f9;
+      --draft-bar-4-head: #e4e9f1;
+      --draft-bar-4-stripe: #5a7fa3;
+      --draft-bar-5: #eceff6;
+      --draft-bar-5-head: #dde3ee;
+      --draft-bar-5-stripe: #687d9c;
+      --api-bg: #f6f7f9;
+      --api-accent: #5c6578;
+      --status-healthy-bg: #e6f4ea;
+      --status-healthy-fg: #137333;
+      --status-degrading-bg: #fef3c7;
+      --status-degrading-fg: #b45309;
+      --status-urgent-bg: #fde8e8;
+      --status-urgent-fg: #b42318;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 1px 2px rgba(26, 35, 50, 0.06), 0 4px 12px rgba(26, 35, 50, 0.05);
+      --font: "Source Sans 3", system-ui, -apple-system, sans-serif;
     }
-    body { font-family: "Roboto", system-ui, sans-serif; margin: 0; color: var(--text); background: var(--bg); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: var(--font);
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
     .topbar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
+      background: linear-gradient(180deg, #0f2744 0%, #0b4f8a 100%);
+      color: #fff;
+      border-bottom: 3px solid #083d6b;
+      padding: 20px 24px 22px;
     }
-    .topbar h1 { font-size: 20px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px; }
+    .topbar-inner { max-width: 1180px; margin: 0 auto; }
+    .topbar h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.02em;
+    }
     .logo {
-      width: 32px; height: 32px; border-radius: 6px;
-      background: linear-gradient(135deg, var(--primary), #004182);
-      color: #fff; font-size: 14px; font-weight: 700;
-      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    .subtitle { color: var(--muted); font-size: 14px; margin: 6px 0 0 42px; font-weight: 400; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 12px; flex: 1; width: 100%; box-sizing: border-box; }
-    .menu { display: flex; flex-wrap: wrap; gap: 12px; }
-    .menu button, .menu a {
-      font: inherit; padding: 12px 22px; border-radius: 24px;
-      border: 1px solid var(--primary); background: var(--surface);
-      color: var(--primary); cursor: pointer; font-weight: 500;
-      text-decoration: none; display: inline-flex; align-items: center;
+    .subtitle {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.9rem;
+      margin: 8px 0 0 48px;
+      font-weight: 400;
+      max-width: 36rem;
     }
-    .menu button:hover, .menu a:hover, .menu button.active {
-      background: var(--primary); color: #fff;
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+      width: 100%;
     }
-    .hint { color: var(--muted); font-size: 15px; margin: 28px 0 0; }
-    .hint.hidden, .view { display: none; }
-    .view.open { display: block; margin-top: 24px; }
-    table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 14px; }
-    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-    tr { cursor: pointer; }
-    tr.selected { background: #eef3f8; }
-    section, .card {
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 6px;
       background: var(--surface);
-      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      width: fit-content;
+      max-width: 100%;
+    }
+    .menu button {
+      font: inherit;
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .menu button:hover {
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .menu button.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 1px 3px rgba(11, 79, 138, 0.35);
+    }
+    .menu button:focus-visible,
+    button.action:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .hint { color: var(--muted); font-size: 0.9rem; margin: 20px 0 0; }
+    .hint.hidden, .view { display: none; }
+    .view.open { display: block; margin-top: 22px; }
+    .panel {
+      border-radius: var(--radius);
+      padding: 20px 22px 22px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .panel-heading {
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .panel-heading::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: 0.05em;
+    }
+    .panel-queue {
+      background: var(--queue-bg);
+      border-left: 4px solid var(--queue-accent);
+    }
+    .panel-queue .panel-heading::before { background: var(--queue-accent); }
+    .panel-queue .table-shell thead { background: var(--queue-head); }
+    .panel-queue tbody tr:hover { background: rgba(168, 75, 42, 0.06); }
+    .panel-register {
+      background: var(--register-bg);
+      border-left: 4px solid var(--register-accent);
+    }
+    .panel-register .panel-heading::before { background: var(--register-accent); }
+    .panel-register .table-shell thead { background: var(--register-head); }
+    .panel-register tbody tr:hover { background: rgba(47, 107, 79, 0.06); }
+    .panel-work.view.card {
+      background: var(--draft-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--draft-accent);
+      box-shadow: var(--shadow);
+    }
+    .panel-work #maintenance-drafts {
+      padding: 4px 2px 8px;
+    }
+    .panel-work .draft-page-heading {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text);
+    }
+    .panel-work .draft-page-heading::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      background: var(--draft-accent);
+      vertical-align: 0.05em;
+    }
+    .panel-work .draft-page-heading + .muted {
+      margin-bottom: 4px;
+    }
+    .panel-api.view.card {
+      background: var(--api-bg);
+      border-left: 4px solid var(--api-accent);
+    }
+    .panel-api h2 { color: var(--text); }
+    .table-shell {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead { background: #f4f6f9; }
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background 0.12s; }
+    tbody tr.row-clickable { cursor: pointer; }
+    tbody tr.row-static { cursor: default; }
+    tbody tr:hover { background: #f8fafc; }
+    tr.selected { background: var(--primary-soft) !important; }
+    tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
+    .card {
+      background: var(--surface);
+      padding: 24px;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      margin-bottom: 20px;
+      margin-bottom: 22px;
+      border: 1px solid var(--border);
     }
-    section h2, .card h2 { font-size: 16px; font-weight: 500; margin: 0 0 12px; }
+    .card h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .card h2 + .muted { margin-bottom: 16px; display: block; }
+    .draft-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      background: #fafbfc;
+    }
+    .draft-card h3 {
+      font-size: 1rem;
+      margin: 0 0 12px;
+      color: var(--primary);
+    }
+    .draft-section { margin-bottom: 10px; }
+    .draft-section h4 {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin: 0 0 4px;
+      font-weight: 600;
+    }
+    .draft-section p { margin: 0; font-size: 0.92rem; }
+    .draft-section pre.action-text {
+      margin: 0;
+      font-family: inherit;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+    .train-accordion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .train-accordion-item {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .train-accordion-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 18px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--draft-accent);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 14px;
+      user-select: none;
+      background: var(--draft-head);
+    }
+    .train-accordion-item summary::-webkit-details-marker { display: none; }
+    .train-accordion-item summary::before {
+      content: "▸";
+      color: var(--muted);
+      font-size: 0.85rem;
+      transition: transform 0.15s;
+    }
+    .train-accordion-item[open] summary::before {
+      transform: rotate(90deg);
+    }
+    .train-accordion-item[open] summary {
+      border-bottom: 1px solid var(--border);
+    }
+    .train-accordion-item summary .acc-meta {
+      font-weight: 500;
+      font-size: 0.82rem;
+      color: var(--muted);
+      flex: 1 1 100%;
+    }
+    .train-accordion-body {
+      padding: 16px 18px 18px;
+    }
+    .train-tint-0 { background: var(--draft-bar-0); border-left-color: var(--draft-bar-0-stripe); }
+    .train-tint-0 > summary { background: var(--draft-bar-0-head); }
+    .train-tint-1 { background: var(--draft-bar-1); border-left-color: var(--draft-bar-1-stripe); }
+    .train-tint-1 > summary { background: var(--draft-bar-1-head); }
+    .train-tint-2 { background: var(--draft-bar-2); border-left-color: var(--draft-bar-2-stripe); }
+    .train-tint-2 > summary { background: var(--draft-bar-2-head); }
+    .train-tint-3 { background: var(--draft-bar-3); border-left-color: var(--draft-bar-3-stripe); }
+    .train-tint-3 > summary { background: var(--draft-bar-3-head); }
+    .train-tint-4 { background: var(--draft-bar-4); border-left-color: var(--draft-bar-4-stripe); }
+    .train-tint-4 > summary { background: var(--draft-bar-4-head); }
+    .train-tint-5 { background: var(--draft-bar-5); border-left-color: var(--draft-bar-5-stripe); }
+    .train-tint-5 > summary { background: var(--draft-bar-5-head); }
+    .train-accordion-body .draft-card {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: rgba(11, 79, 138, 0.12);
+    }
+    .train-accordion-body .draft-card h3 {
+      color: var(--draft-accent);
+    }
+    .train-accordion-body .draft-section h4 {
+      color: var(--muted);
+    }
+    .draft-card.selected { outline: 2px solid var(--primary); outline-offset: 2px; }
     button.action {
-      font: inherit; padding: 8px 16px; border-radius: 20px; border: none;
-      background: var(--primary); color: #fff; cursor: pointer; font-weight: 500;
+      font: inherit;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: background 0.15s;
     }
-    button.action:hover { background: #004182; }
-    textarea { width: 100%; min-height: 72px; font: inherit; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-sizing: border-box; }
-    .bar { height: 8px; background: var(--accent); margin-top: 4px; border-radius: 4px; }
-    .muted { color: var(--muted); font-size: 13px; }
-    #train svg { display: block; max-width: 760px; }
-    #train text { font-family: "Roboto", system-ui, sans-serif; font-size: 13px; }
-    .fleet-heading { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
-    .hero-train { margin-top: auto; padding: 32px 24px 40px; text-align: center; }
-    .hero-train img {
-      max-width: 780px; width: 100%; height: auto;
-      border-radius: 12px; box-shadow: var(--shadow);
-      background: #d8dde3;
+    button.action:hover { background: var(--primary-hover); }
+    button.action.secondary {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border-strong);
+      margin-left: 8px;
     }
-    .hero-train p { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+    button.action.secondary:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .btn-row { margin-top: 14px; }
+    textarea {
+      width: 100%;
+      min-height: 88px;
+      font: inherit;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-top: 12px;
+      color: var(--text);
+      line-height: 1.5;
+      resize: vertical;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 79, 138, 0.15);
+    }
+    .muted { color: var(--muted); font-size: 0.875rem; }
+    .fleet-heading {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .fleet-heading-spaced { margin-top: 28px; }
+    .state-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .state-badge.act_tonight {
+      background: var(--status-urgent-bg);
+      color: var(--status-urgent-fg);
+      border: 1px solid rgba(180, 35, 24, 0.15);
+    }
+    .state-badge.degrading {
+      background: var(--status-degrading-bg);
+      color: var(--status-degrading-fg);
+      border: 1px solid rgba(180, 83, 9, 0.18);
+    }
+    .state-badge.healthy {
+      background: var(--status-healthy-bg);
+      color: var(--status-healthy-fg);
+      border: 1px solid rgba(19, 115, 51, 0.15);
+    }
+    td.location {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      max-width: 220px;
+      line-height: 1.4;
+    }
+    .draft-lead {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      margin: 12px 0 0;
+      color: var(--text);
+    }
+    .draft-meta {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #f4f6f9;
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem;
+    }
+    .detail-metrics {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .api-frame-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #fafbfc;
+      margin-top: 4px;
+    }
+    #api-docs-frame {
+      display: block;
+      width: 100%;
+      height: min(78vh, 880px);
+      border: none;
+    }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <h1><span class="logo" aria-hidden="true">TR</span> TraceRail</h1>
-    <p class="subtitle">Nordic Metro — ranked by delay minutes at risk.</p>
+    <div class="topbar-inner">
+      <h1><span class="logo" aria-hidden="true">TR</span> TraceRail</h1>
+      <p class="subtitle">UK Regional — fleet ranked by delay risk.</p>
+    </div>
   </header>
   <div class="wrap">
     <nav class="menu" aria-label="Fleet views">
       <button type="button" data-view="queue">Priority queue</button>
-      <button type="button" data-view="train">Train view</button>
-      <button type="button" data-view="charts">Delay charts</button>
       <button type="button" data-view="work">Maintenance draft</button>
-      <a href="/docs">API docs</a>
+      <button type="button" data-view="api">API docs</button>
     </nav>
-    <p class="hint" id="hint">Choose a view to walk the fleet. The train stays at the bottom of the page.</p>
+    <p class="hint" id="hint">Choose a view from the menu. API docs stay on this page.</p>
 
     <div id="view-queue" class="view">
-      <p class="fleet-heading">Priority maintenance queue</p>
-      <table>
-        <thead>
-          <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
-        </thead>
-        <tbody id="attention"></tbody>
-      </table>
-      <p class="fleet-heading" style="margin-top:24px">Full fleet register</p>
-      <table>
-        <thead>
-          <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th><th>Delay min</th></tr>
-        </thead>
-        <tbody id="fleet"></tbody>
-      </table>
+      <section class="panel panel-queue" aria-label="Priority maintenance queue">
+        <p class="fleet-heading panel-heading">Priority maintenance queue</p>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr><th>Train</th><th>Location</th><th>Car</th><th>System</th><th>Component</th><th>State</th></tr>
+            </thead>
+            <tbody id="attention"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel panel-register" aria-label="Full fleet register">
+        <p class="fleet-heading panel-heading fleet-heading-spaced" style="margin-top:0">Full fleet register <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">— healthy only</span></p>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr><th>Train</th><th>Car</th><th>System</th><th>Component</th><th>State</th></tr>
+            </thead>
+            <tbody id="fleet"></tbody>
+          </table>
+        </div>
+      </section>
     </div>
 
-    <section id="view-train" class="view card">
-      <h2 id="train-name">Train</h2>
-      <p class="muted">Click a system on a car to open the maintenance draft.</p>
-      <div id="train"></div>
+    <section id="view-work" class="view card panel-work">
+      <div id="maintenance-drafts"><p class="muted">Loading maintenance drafts…</p></div>
     </section>
 
-    <div id="view-charts" class="view">
-      <section>
-        <h2>Delay exposure by system</h2>
-        <div id="by-system"></div>
-      </section>
-      <section>
-        <h2>Fleet condition summary</h2>
-        <div id="by-state"></div>
-      </section>
-    </div>
-
-    <section id="view-work" class="view card">
-      <div id="detail"><p class="muted">Choose a train system to open maintenance readiness and delay-risk metrics.</p></div>
+    <section id="view-api" class="view card panel-api">
+      <h2>API — depot / TCMS ingest</h2>
+      <p class="muted">OpenAPI (Swagger) for the same TraceRail server. Try POST readings and events from here.</p>
+      <div class="api-frame-wrap">
+        <iframe id="api-docs-frame" title="TraceRail OpenAPI documentation"></iframe>
+      </div>
     </section>
   </div>
-  <footer class="hero-train">
-    <img src="/static/metro-train.jpg" alt="Three-quarter 3D view of a Nordic Metro train">
-    <p>Synthetic Nordic Metro — visual only, not a physics twin.</p>
-  </footer>
   <script>
     var fleet = [];
     var selectedId = null;
-    var fills = { act_tonight: "#e4bdb6", degrading: "#ead9a8", healthy: "#d3ddd0" };
+    var currentView = null;
+    var apiDocsLoaded = false;
+    var VALID_VIEWS = ["queue", "work", "api"];
+
+    function viewFromHash() {
+      var raw = (location.hash || "#queue").replace(/^#/, "");
+      var parts = raw.split("/");
+      var name = parts[0] || "queue";
+      if (VALID_VIEWS.indexOf(name) === -1) name = "queue";
+      var assetId = parts[1] ? parseInt(parts[1], 10) : null;
+      if (assetId !== null && isNaN(assetId)) assetId = null;
+      return { name: name, assetId: assetId };
+    }
+
+    function syncHash(name) {
+      var hash = "#" + name;
+      if (name === "work" && selectedId) hash += "/" + selectedId;
+      if (location.hash !== hash) location.hash = hash;
+    }
 
     function load() {
+      var initial = viewFromHash();
+      currentView = initial.name;
+      if (initial.assetId) selectedId = initial.assetId;
       fetch("/fleet").then(function (response) { return response.json(); }).then(function (rows) {
         fleet = rows;
         if (!selectedId && rows.length) selectedId = rows[0].id;
         drawFleet();
-        drawCharts();
+        showView(currentView, { skipHash: true });
+        if (currentView === "work" && initial.assetId) {
+          drawMaintenanceDrafts(initial.assetId);
+        }
       });
     }
+
+    window.addEventListener("hashchange", function () {
+      var next = viewFromHash();
+      if (next.assetId) selectedId = next.assetId;
+      drawFleet();
+      showView(next.name, { skipHash: true });
+      if (next.name === "work" && next.assetId) {
+        drawMaintenanceDrafts(next.assetId);
+      }
+    });
 
     document.querySelector(".menu").addEventListener("click", function (event) {
       var button = event.target.closest("button[data-view]");
@@ -155,219 +592,131 @@
       showView(button.getAttribute("data-view"));
     });
 
-    function showView(name) {
+    function showView(name, options) {
+      options = options || {};
+      if (VALID_VIEWS.indexOf(name) === -1) name = "queue";
+      currentView = name;
       document.querySelectorAll(".menu button").forEach(function (button) {
         button.classList.toggle("active", button.getAttribute("data-view") === name);
       });
       document.getElementById("hint").classList.add("hidden");
-      ["queue", "train", "charts", "work"].forEach(function (view) {
+      ["queue", "work", "api"].forEach(function (view) {
         document.getElementById("view-" + view).classList.toggle("open", view === name);
       });
-      if (name === "work" && selectedId) openAsset(selectedId);
+      if (name === "work") drawMaintenanceDrafts();
+      if (name === "api" && !apiDocsLoaded) {
+        document.getElementById("api-docs-frame").src = "/docs";
+        apiDocsLoaded = true;
+      }
+      if (!options.skipHash) syncHash(name);
     }
 
-    function fillTable(id, rows) {
+    function fillTable(id, rows, withLocation, clickable) {
       var body = document.getElementById(id);
       body.innerHTML = "";
       rows.forEach(function (row) {
         var tr = document.createElement("tr");
-        if (row.id === selectedId) tr.className = "selected";
-        tr.innerHTML = "<td>" + row.train + "</td><td>" + row.car + "</td><td>" + row.system
-          + "</td><td>" + row.component + "</td><td>" + row.state.replace(/_/g, " ")
-          + "</td><td>" + row.delay_risk_minutes + "</td>";
-        tr.onclick = function () {
-          openAsset(row.id);
-          showView("work");
-        };
+        tr.className = clickable ? "row-clickable" : "row-static";
+        if (clickable && row.id === selectedId) tr.className += " selected";
+        var locationCell = withLocation
+          ? "<td class=\"location\">" + (row.location || "—") + "</td>"
+          : "";
+        tr.innerHTML = "<td><strong>" + row.train + "</strong></td>" + locationCell + "<td>" + row.car + "</td><td>" + row.system
+          + "</td><td>" + row.component + "</td><td><span class=\"state-badge " + row.state + "\">"
+          + row.state.replace(/_/g, " ") + "</span></td>";
+        if (clickable) {
+          tr.onclick = function () {
+            focusAsset(row.id);
+          };
+        }
         body.appendChild(tr);
       });
     }
 
     function drawFleet() {
-      fillTable("attention", fleet.filter(function (row) { return row.state !== "healthy"; }));
-      fillTable("fleet", fleet);
-      drawTrain();
+      fillTable("attention", fleet.filter(function (row) { return row.state !== "healthy"; }), true, true);
+      fillTable("fleet", fleet.filter(function (row) { return row.state === "healthy"; }), false, false);
     }
 
-    function drawTrain() {
-      var box = document.getElementById("train");
-      var title = document.getElementById("train-name");
-      var current = null;
-      fleet.forEach(function (row) {
-        if (row.id === selectedId) current = row;
-      });
-      box.innerHTML = "";
-      if (!current) {
-        title.textContent = "Train";
-        return;
-      }
-      title.textContent = current.train;
-      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      svg.setAttribute("viewBox", "0 0 760 170");
-      svg.setAttribute("width", "100%");
-      var cars = { 1: [], 2: [] };
-      fleet.forEach(function (row) {
-        if (row.train === current.train && cars[row.car]) cars[row.car].push(row);
-      });
-      drawCar(svg, 16, "Car 1", cars[1]);
-      drawCar(svg, 392, "Car 2", cars[2]);
-      box.appendChild(svg);
-    }
-
-    function drawCar(svg, x, label, rows) {
-      var body = document.createElementNS(svg.namespaceURI, "rect");
-      body.setAttribute("x", x);
-      body.setAttribute("y", 28);
-      body.setAttribute("width", 340);
-      body.setAttribute("height", 112);
-      body.setAttribute("rx", 18);
-      body.setAttribute("fill", "#fbfaf7");
-      body.setAttribute("stroke", "#1c1c1c");
-      svg.appendChild(body);
-      var caption = document.createElementNS(svg.namespaceURI, "text");
-      caption.setAttribute("x", x + 12);
-      caption.setAttribute("y", 18);
-      caption.textContent = label;
-      svg.appendChild(caption);
-      [48, 292].forEach(function (offset) {
-        var wheel = document.createElementNS(svg.namespaceURI, "circle");
-        wheel.setAttribute("cx", x + offset);
-        wheel.setAttribute("cy", 148);
-        wheel.setAttribute("r", 10);
-        wheel.setAttribute("fill", "#1c1c1c");
-        svg.appendChild(wheel);
-      });
-      var order = ["doors", "brakes", "hvac", "traction"];
-      var placed = [];
-      order.forEach(function (kind) {
-        rows.forEach(function (row) {
-          if (row.system === kind) placed.push(row);
-        });
-      });
-      var gap = 8;
-      var width = (316 - gap * (placed.length - 1)) / placed.length;
-      placed.forEach(function (row, index) {
-        var bx = x + 12 + index * (width + gap);
-        var block = document.createElementNS(svg.namespaceURI, "rect");
-        block.setAttribute("x", bx);
-        block.setAttribute("y", 48);
-        block.setAttribute("width", width);
-        block.setAttribute("height", 72);
-        block.setAttribute("rx", 6);
-        block.setAttribute("fill", fills[row.state] || "#ddd");
-        block.setAttribute("stroke", row.id === selectedId ? "#1c1c1c" : "#cfc9be");
-        block.setAttribute("stroke-width", row.id === selectedId ? 2.5 : 1);
-        block.setAttribute("role", "button");
-        block.setAttribute("tabindex", "0");
-        block.setAttribute("aria-label", row.system + ", car " + row.car);
-        block.style.cursor = "pointer";
-        block.onclick = function () {
-          openAsset(row.id);
-          showView("work");
-        };
-        svg.appendChild(block);
-        var text = document.createElementNS(svg.namespaceURI, "text");
-        text.setAttribute("x", bx + width / 2);
-        text.setAttribute("y", 90);
-        text.setAttribute("text-anchor", "middle");
-        text.style.pointerEvents = "none";
-        text.textContent = row.system;
-        svg.appendChild(text);
-      });
-    }
-
-    function drawCharts() {
-      var totals = {};
-      var states = {};
-      fleet.forEach(function (row) {
-        totals[row.system] = (totals[row.system] || 0) + row.delay_risk_minutes;
-        states[row.state] = (states[row.state] || 0) + 1;
-      });
-      barChart("by-system", totals, " min");
-      barChart("by-state", states, "");
-    }
-
-    function barChart(id, totals, suffix) {
-      var box = document.getElementById(id);
-      var names = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
-      var max = names.reduce(function (peak, name) { return Math.max(peak, totals[name]); }, 1);
-      box.innerHTML = "";
-      names.forEach(function (name) {
-        var value = Math.round(totals[name] * 10) / 10;
-        var row = document.createElement("div");
-        row.style.marginBottom = "8px";
-        row.innerHTML = "<div>" + name.replace("_", " ") + " — " + value + suffix + "</div>";
-        var bar = document.createElement("div");
-        bar.className = "bar";
-        bar.style.width = (100 * totals[name] / max) + "%";
-        row.appendChild(bar);
-        box.appendChild(row);
-      });
-    }
-
-    function openAsset(id) {
+    function focusAsset(id) {
       selectedId = id;
       drawFleet();
-      fetch("/assets/" + id).then(function (response) { return response.json(); }).then(function (asset) {
-        if (asset.recommendations.length) {
-          drawDetail(asset);
+      showView("work");
+      drawMaintenanceDrafts(id);
+    }
+
+    function draftSection(title, text, pre) {
+      if (pre) {
+        return "<div class=\"draft-section\"><h4>" + title + "</h4><pre class=\"action-text\">"
+          + text.replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</pre></div>";
+      }
+      return "<div class=\"draft-section\"><h4>" + title + "</h4><p>" + text + "</p></div>";
+    }
+
+    function drawMaintenanceDrafts(scrollToId) {
+      fetch("/maintenance-drafts").then(function (response) {
+        if (!response.ok) {
+          throw new Error("Could not load drafts. Restart the TraceRail server, then refresh.");
+        }
+        return response.json();
+      }).then(function (rows) {
+        if (!rows || !rows.length) {
+          document.getElementById("maintenance-drafts").innerHTML = "<p class=\"muted\">No assets in the priority queue.</p>";
           return;
         }
-        fetch("/assets/" + id + "/recommend", { method: "POST" }).then(function (response) {
-          if (!response.ok) {
-            drawDetail(asset);
-            return;
-          }
-          openAsset(id);
+        var byTrain = {};
+        rows.forEach(function (row) {
+          if (!byTrain[row.train]) byTrain[row.train] = [];
+          byTrain[row.train].push(row);
         });
+        var trainCodes = Object.keys(byTrain).sort(function (a, b) {
+          var ha = byTrain[a][0].health_score;
+          var hb = byTrain[b][0].health_score;
+          return ha - hb;
+        });
+        var html = "<h2 class=\"draft-page-heading\">Maintenance drafts by train</h2>"
+          + "<p class=\"muted\">" + trainCodes.length + " trains · " + rows.length
+          + " systems in the queue. Expand a bar to see depot work packs.</p>"
+          + "<div class=\"train-accordion-list\">";
+        trainCodes.forEach(function (train, index) {
+          var systems = byTrain[train];
+          var openTrain = scrollToId && systems.some(function (row) {
+            return row.component_id === scrollToId;
+          });
+          var worst = systems[0].state.replace(/_/g, " ");
+          var tint = "train-tint-" + (index % 6);
+          html += "<details class=\"train-accordion-item " + tint + "\""
+            + (openTrain ? " open" : "") + " data-train=\"" + train + "\">"
+            + "<summary><span>" + train + "</span>"
+            + "<span class=\"state-badge " + systems[0].state + "\">" + worst + "</span>"
+            + "<span class=\"acc-meta\">" + systems.length + " system(s) · "
+            + (systems[0].location || "—") + "</span></summary>"
+            + "<div class=\"train-accordion-body\">";
+          systems.forEach(function (row) {
+            var selected = scrollToId === row.component_id || (!scrollToId && selectedId === row.component_id);
+            html += "<article class=\"draft-card" + (selected ? " selected" : "") + "\" data-id=\"" + row.component_id + "\">"
+              + "<h3>Car " + row.car + " · " + row.system + " · " + row.component
+              + " <span class=\"state-badge " + row.state + "\">" + row.state.replace(/_/g, " ")
+              + "</span> · <span class=\"muted\">" + row.window + "</span></h3>"
+              + draftSection("Summary", row.summary)
+              + draftSection("Depot", row.depot)
+              + draftSection("Duration", row.duration)
+              + draftSection("Crew", row.crew)
+              + draftSection("Documentation", row.documentation)
+              + draftSection("Action", row.action || "", true)
+              + "<p class=\"muted\">Draft status: " + row.status + "</p></article>";
+          });
+          html += "</div></details>";
+        });
+        html += "</div>";
+        document.getElementById("maintenance-drafts").innerHTML = html;
+        if (scrollToId) {
+          var card = document.querySelector(".draft-card[data-id=\"" + scrollToId + "\"]");
+          if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }).catch(function (err) {
+        document.getElementById("maintenance-drafts").innerHTML = "<p class=\"muted\">" + err.message + "</p>";
       });
-    }
-
-    function byMetric(readings) {
-      var grouped = {};
-      readings.forEach(function (reading) {
-        if (!grouped[reading.metric]) grouped[reading.metric] = [];
-        grouped[reading.metric].push(reading);
-      });
-      return grouped;
-    }
-
-    function latestText(readings) {
-      var grouped = byMetric(readings);
-      var names = Object.keys(grouped);
-      if (!names.length) return "none";
-      return names.map(function (name) {
-        var points = grouped[name];
-        return name + " " + points[points.length - 1].value;
-      }).join(", ");
-    }
-
-    function drawDetail(asset) {
-      var draft = asset.recommendations[asset.recommendations.length - 1];
-      var draftBlock = draft
-        ? "<p>" + draft.action + "</p><p class=\"muted\">" + draft.window + " · " + draft.delay_minutes_avoided + " delay minutes · " + draft.status + "</p>"
-          + "<textarea id=\"edit\">" + draft.action + "</textarea><p><button class=\"action\" id=\"accept\">Accept</button> <button class=\"action\" id=\"save-edit\">Save edit</button></p>"
-        : "<p class=\"muted\">No recommendation yet.</p>";
-      document.getElementById("detail").innerHTML =
-        "<h2>" + asset.train + " · car " + asset.car + " · maintenance readiness</h2>"
-        + "<p class=\"muted\">" + asset.component + "</p>"
-        + draftBlock
-        + "<p class=\"muted\">" + latestText(asset.readings) + ". "
-        + asset.failure_probability + " × " + asset.typical_delay_minutes + " min = " + asset.delay_risk_minutes + " delay minutes.</p>";
-      if (draft) {
-        document.getElementById("accept").onclick = function () { decide(draft.id, "accepted", null); };
-        document.getElementById("save-edit").onclick = function () {
-          decide(draft.id, "edited", document.getElementById("edit").value);
-        };
-      }
-    }
-
-    function decide(id, status, edited) {
-      fetch("/recommendations/" + id + "/decision", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: status, edited_action: edited })
-      }).then(function () { openAsset(selectedId); });
     }
 
     load();

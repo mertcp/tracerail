@@ -4,7 +4,7 @@
 
 Metro operators still lose timetable when a degrading door or brake fails in service, while maintenance is often calendar-driven. TraceRail ingests **measurements** (not “healthy” flags), scores health and delay risk, ranks the fleet, and drafts the depot action a maintainer can accept or edit—so failures move from the line into planned work.
 
-Demo for solutions pre-sales: API-first, synthetic **Nordic Metro** fleet, runs locally. Companion project: [solar-warranty](https://github.com/mertcp/solar-warranty) (portfolio warranty & performance).
+Demo for solutions pre-sales: API-first, synthetic **UK Regional** fleet, runs locally. Companion project: [solar-warranty](https://github.com/mertcp/solar-warranty) (portfolio warranty & performance).
 
 **Repository:** [github.com/mertcp/tracerail](https://github.com/mertcp/tracerail)
 
@@ -12,7 +12,7 @@ Demo for solutions pre-sales: API-first, synthetic **Nordic Metro** fleet, runs 
 
 ## What you can show in five minutes
 
-Open http://127.0.0.1:8000/ after starting the server below. The home page is a short menu: **Priority queue**, **Train view**, **Delay charts**, **Maintenance draft**, and **API docs**. Open **Train view**, click **doors** on NM-07—the maintenance line appears with motor current, lock time, and the delay-risk formula. Accept or edit. Show **/docs** for how a TCMS or depot system posts the next reading.
+Open http://127.0.0.1:8000/ after starting the server below. Use the **priority queue** (with UK depot location per train), open **MM-07** car 2 doors for the maintenance line, motor current, lock time, and delay-risk formula. **Back** returns to the prior view. API docs stay embedded on the page.
 
 Name aloud: measurements in, ranked fleet out, human approves the work order narrative, optional LLM when `OPENAI_API_KEY` is set (rule-based draft otherwise).
 
@@ -70,7 +70,7 @@ curl -s -X POST http://127.0.0.1:8000/assets/<ID>/readings \
 curl -s -X POST http://127.0.0.1:8000/assets/<ID>/recommend
 ```
 
-Replace `<ID>` with the NM-07 door asset from `/fleet`. Open `/docs` for events and recommendations.
+Replace `<ID>` with the MM-07 door asset from `/fleet`. Open `/docs` for events and recommendations.
 
 ---
 
@@ -78,14 +78,14 @@ Replace `<ID>` with the NM-07 door asset from `/fleet`. Open `/docs` for events 
 
 1. Platform delays come from in-service failures; maintenance is still often calendar-based.
 2. Fleet view ranks by **delay minutes at risk**—the product metric, not a notebook chart.
-3. NM-07 door: both measurements drifted; formula and “if we wait” are on screen.
-4. Click the system on the train; review the draft for tonight.
+3. MM-07 door: both measurements drifted; formula and “if we wait” are on screen.
+4. Open the asset from the queue; review the draft for tonight.
 5. Accept or edit—engineer stays in control.
 6. Peer doors show the same pattern (fleet learning, not one-off).
-7. Charts: where delay exposure concentrates by system.
+7. Priority queue shows **location** so the team knows where to go.
 8. `/docs`: integration point for the next telemetry POST.
 
-**Said aloud:** *“Nordic Metro was holding trains at the platform on door faults. TraceRail reads motor current and lock time, quantifies delay risk, and drafts inspect-tonight work the maintainer can accept—before the failure hits the timetable.”*
+**Said aloud:** *“UK Regional was holding trains at the platform on door faults. TraceRail reads motor current and lock time, quantifies delay risk, and drafts inspect-tonight work the maintainer can accept—before the failure hits the timetable.”*
 
 ---
 

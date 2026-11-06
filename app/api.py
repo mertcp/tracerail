@@ -11,16 +11,17 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.db import create_tables, get_session
 from app.models import Car, Component, Event, Reading, Recommendation, System, Train
+from app.locations import TRAIN_LOCATIONS
+from app.maintenance_plan import action_text, sections as maintenance_sections
 from app.recommend import draft
 from app.scoring import assess
 from app.seed import seed
 
 app = FastAPI(
     title="TraceRail",
-    description="Condition-based maintenance demo — delay-risk ranked fleet, synthetic Nordic Metro.",
+    description="Condition-based maintenance demo — delay-risk ranked fleet, synthetic UK Regional.",
     version="0.1.0",
 )
-
 
 def session_scope():
     session = get_session()
@@ -54,9 +55,9 @@ def _asset(component):
         "health_score": component.health_score,
         "failure_probability": component.failure_probability,
         "typical_delay_minutes": component.typical_delay_minutes,
-        "delay_risk_minutes": component.delay_risk_minutes,
         "if_wait_delay_minutes": component.if_wait_delay_minutes,
-        "formula": "delay_risk = failure_probability × typical_delay_minutes",
+        "formula": "failure_probability × typical_delay_minutes",
+        "location": TRAIN_LOCATIONS.get(car.train.code, "Unknown depot"),
     }
 
 
@@ -87,21 +88,10 @@ class ReadingIn(BaseModel):
     value: float
 
 
-class DecisionIn(BaseModel):
-    status: str
-    edited_action: Optional[str] = None
-
-
 @app.get("/")
 def home():
     page = Path(__file__).resolve().parent / "fleet.html"
-    return FileResponse(page)
-
-
-@app.get("/static/metro-train.jpg", include_in_schema=False)
-def train_photo():
-    photo = Path(__file__).resolve().parent / "static" / "metro-train.jpg"
-    return FileResponse(photo)
+    return FileResponse(page, headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/health")
@@ -117,7 +107,46 @@ def fleet(session: Session = Depends(session_scope)):
         .all()
     )
     rows = [_asset(component) for component in components]
-    rows.sort(key=lambda row: row["delay_risk_minutes"], reverse=True)
+    rows.sort(key=lambda row: (row["health_score"], -row["failure_probability"]))
+    return rows
+
+
+@app.get("/maintenance-drafts")
+def maintenance_drafts(session: Session = Depends(session_scope)):
+    components = (
+        session.query(Component)
+        .options(
+            joinedload(Component.system).joinedload(System.car).joinedload(Car.train),
+            joinedload(Component.recommendations),
+        )
+        .filter(Component.state != "healthy")
+        .all()
+    )
+    components.sort(key=lambda item: (item.health_score, -item.failure_probability))
+    rows = []
+    for component in components:
+        car = component.system.car
+        plan = maintenance_sections(component)
+        latest = sorted(component.recommendations, key=lambda item: item.created_at)[-1] if component.recommendations else None
+        rows.append({
+            "component_id": component.id,
+            "train": car.train.code,
+            "car": car.position,
+            "system": component.system.kind,
+            "component": component.name,
+            "state": component.state,
+            "health_score": component.health_score,
+            "location": TRAIN_LOCATIONS.get(car.train.code, "Unknown depot"),
+            "summary": plan["summary"],
+            "depot": plan["depot"],
+            "duration": plan["duration"],
+            "crew": plan["crew"],
+            "documentation": plan["documentation"],
+            "action": (latest.edited_action or latest.action) if latest else action_text(component),
+            "window": latest.window if latest else "tonight",
+            "status": latest.status if latest else "draft",
+            "recommendation_id": latest.id if latest else None,
+        })
     return rows
 
 
@@ -125,6 +154,7 @@ def fleet(session: Session = Depends(session_scope)):
 def asset(component_id: int, session: Session = Depends(session_scope)):
     component = _one(session, component_id)
     body = _asset(component)
+    body["maintenance"] = maintenance_sections(component)
     body["readings"] = [
         {"at": reading.recorded_at.isoformat(), "metric": reading.metric, "value": reading.value}
         for reading in sorted(component.readings, key=lambda item: item.recorded_at)
@@ -185,13 +215,12 @@ def _apply(component):
     values = {}
     for reading in sorted(component.readings, key=lambda item: item.recorded_at):
         values[reading.metric] = reading.value
-    health, probability, state, risk, if_wait = assess(
+    health, probability, state, _risk, if_wait = assess(
         component.system.kind, values, component.typical_delay_minutes
     )
     component.health_score = health
     component.failure_probability = probability
     component.state = state
-    component.delay_risk_minutes = risk
     component.if_wait_delay_minutes = if_wait
 
 
@@ -219,24 +248,3 @@ def recommend(component_id: int, session: Session = Depends(session_scope)):
         "status": record.status,
     }
 
-
-@app.post("/recommendations/{recommendation_id}/decision")
-def decide(recommendation_id: int, incoming: DecisionIn, session: Session = Depends(session_scope)):
-    if incoming.status not in ("accepted", "edited", "rejected"):
-        raise HTTPException(status_code=400, detail="Status must be accepted, edited, or rejected")
-    record = session.get(Recommendation, recommendation_id)
-    if record is None:
-        raise HTTPException(status_code=404, detail="Recommendation not found")
-    record.status = incoming.status
-    if incoming.status == "edited":
-        if not incoming.edited_action:
-            raise HTTPException(status_code=400, detail="An edited action is required")
-        record.edited_action = incoming.edited_action
-    session.commit()
-    return {
-        "id": record.id,
-        "action": record.edited_action or record.action,
-        "window": record.window,
-        "delay_minutes_avoided": record.delay_minutes_avoided,
-        "status": record.status,
-    }
