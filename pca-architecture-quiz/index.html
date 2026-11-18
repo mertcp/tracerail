@@ -116,6 +116,7 @@
       domain: '#Storage',
       title: 'Cymbal Retail — global order ledger',
       text: 'Cymbal Retail needs a globally consistent, horizontally scalable relational database with external ACID transactions across regions for its order ledger. Latency must stay low for reads worldwide. Regional managed MySQL is not sufficient.',
+      question: 'Which Google Cloud service provides globally consistent, horizontally scalable relational SQL with external ACID transactions across regions?',
       correct: 'spanner',
       wrongHint: {
         'cloud-sql': 'Cloud SQL excels at regional managed MySQL/PostgreSQL but does not provide Google-native global external consistency and multi-region ACID at Spanner scale.',
@@ -129,6 +130,7 @@
       domain: '#Storage',
       title: 'Altostrat — IoT telemetry flood',
       text: 'Altostrat ingests millions of device metrics per second with append-heavy, time-ordered keys. You need single-digit ms writes at petabyte scale. Document sync and mobile offline are out of scope.',
+      question: 'Which Google Cloud database is best suited for petabyte-scale, append-heavy IoT telemetry with single-digit millisecond writes?',
       correct: 'bigtable',
       wrongHint: {
         'firestore': 'Firestore targets app document sync and moderate throughput, not massive time-series write fan-in.',
@@ -142,6 +144,7 @@
       domain: '#Security',
       title: 'Cymbal internal admin console',
       text: 'Engineers must reach a browser-based admin UI on private IPs without a full-site VPN. Access should follow Google identity, device, and context (BeyondCorp-style) before TCP is allowed to the backend.',
+      question: 'Which Google Cloud service enables identity- and context-aware HTTPS access to internal applications without a traditional perimeter VPN?',
       correct: 'iap',
       wrongHint: {
         'cloud-armor': 'Cloud Armor protects HTTP(S) load-balanced apps with WAF/DDoS rules; it does not replace identity-aware TCP/SSH/RDP gating to private services.',
@@ -155,6 +158,7 @@
       domain: '#Compute',
       title: 'Altostrat — bursty checkout API',
       text: 'A containerized checkout API has unpredictable traffic, must scale to zero overnight, and should not require cluster ops. Images are already OCI-compliant.',
+      question: 'Which Google Cloud compute platform should host a stateless containerized HTTP API with scale-to-zero and no Kubernetes cluster management?',
       correct: 'cloud-run',
       wrongHint: {
         'compute-engine': 'Compute Engine VMs run 24/7 unless you automate scaling; they do not natively scale to zero for stateless HTTP containers.',
@@ -168,6 +172,7 @@
       domain: '#Analytics',
       title: 'Cymbal Retail — live sales pipeline',
       text: 'Store events land in a messaging bus; you need managed stream processing (windowing, enrichment) before loading a warehouse for BI. Minimize ops for the transform layer.',
+      question: 'Which Google Cloud service provides managed stream processing with windowing and enrichment before analytics warehouse load?',
       correct: 'dataflow',
       wrongHint: {
         'pubsub': 'Pub/Sub ingests and delivers events but does not run Apache Beam transforms— it is the bus, not the processor.',
@@ -181,6 +186,7 @@
       domain: '#Networking',
       title: 'Altostrat — hybrid data center link',
       text: 'Altostrat needs predictable high bandwidth and low latency between on-prem and GCP for daily multi-TB database sync. SLA matters more than quick setup cost.',
+      question: 'Which Google Cloud hybrid connectivity option should you choose for high-bandwidth, low-latency private links with committed throughput SLAs?',
       correct: 'interconnect',
       wrongHint: {
         'vpc': 'VPC is your software-defined network inside GCP, not the physical hybrid link itself.',
@@ -194,6 +200,7 @@
       domain: '#Security',
       title: 'Cymbal — regulated encryption keys',
       text: 'Compliance requires you to create, rotate, and audit encryption keys yourself while GCP services envelope-encrypt data. Storing API tokens is a separate concern.',
+      question: 'Which Google Cloud service should manage customer-managed encryption keys (CMEK) used for envelope encryption by other GCP services?',
       correct: 'kms',
       wrongHint: {
         'secret-manager': 'Secret Manager stores secret material (API keys, passwords) with versioning—not CMK lifecycle for envelope encryption.',
@@ -206,6 +213,7 @@
       domain: '#Security',
       title: 'Cymbal Retail — public storefront',
       text: 'HTTP(S) external load balancer fronts the e-commerce site. You must mitigate L7 DDoS and OWASP Top 10 at the edge of Google’s network.',
+      question: 'Which Google Cloud service provides L7 DDoS mitigation and WAF policies for an external HTTP(S) load-balanced public application?',
       correct: 'cloud-armor',
       wrongHint: {
         'iap': 'IAP gates authenticated access; it is not a WAF/DDoS policy engine on public customer traffic.',
@@ -219,6 +227,7 @@
       domain: '#Security',
       title: 'Altostrat — data exfiltration guard',
       text: 'Sensitive datasets in BigQuery and GCS must stay inside a defined GCP perimeter even if credentials leak. API calls from outside the perimeter should be blocked.',
+      question: 'Which Google Cloud control defines a service perimeter to block API data exfiltration when credentials are compromised?',
       correct: 'vpc-sc',
       wrongHint: {
         'kms': 'KMS encrypts data at rest; it does not stop a stolen token from copying objects to an attacker project.',
@@ -232,6 +241,7 @@
       domain: '#Operations',
       title: 'Cymbal — multi-env provisioning',
       text: 'Platform team wants declarative, reviewable infrastructure across dev/stage/prod with module reuse and state— aligned with industry practice on GCP.',
+      question: 'Which infrastructure-as-code tool is the standard PCA choice for declarative GCP provisioning with reusable modules and remote state?',
       correct: 'terraform',
       wrongHint: {
         'resource-manager': 'Resource Manager organizes hierarchy and IAM inheritance; it is not an IaC engine.',
@@ -245,6 +255,7 @@
       domain: '#Analytics',
       title: 'Altostrat — warehouse + embedded ML',
       text: 'Analysts need petabyte SQL, federated queries over GCS, and in-warehouse ML (BQML) without exporting data to a separate training cluster.',
+      question: 'Which Google Cloud analytics service supports petabyte-scale SQL, federated queries over Cloud Storage, and in-warehouse machine learning?',
       correct: 'bigquery',
       wrongHint: {
         'dataflow': 'Dataflow moves and transforms data; interactive warehouse SQL and BQML live in BigQuery.',
@@ -258,6 +269,7 @@
       domain: '#Networking',
       title: 'Cymbal — global static assets',
       text: 'Marketing images and JS bundles sit in Cloud Storage behind an external HTTP(S) load balancer. Users worldwide need cache hits at Google edge POPs to cut latency and egress.',
+      question: 'Which Google Cloud service caches static objects at Google edge locations when used with HTTP(S) load balancing and Cloud Storage backends?',
       correct: 'cloud-cdn',
       wrongHint: {
         'cloud-storage': 'GCS is origin storage; caching at the edge requires Cloud CDN on the LB backend.',
@@ -346,7 +358,11 @@
             </div>
             <h2 class="text-base font-semibold text-white mb-2">${esc(sc.title)}</h2>
             <p class="text-sm text-slate-300 leading-relaxed">${esc(sc.text)}</p>
-            <p class="mt-4 text-xs text-slate-500">Click the best-fit service on the map →</p>
+            <div class="mt-4 rounded-lg border border-indigo-400/50 bg-indigo-600/20 px-3 py-3 shadow-inner shadow-indigo-900/30">
+              <p class="text-[10px] uppercase tracking-wider font-bold text-indigo-200 mb-1.5">Question</p>
+              <p class="text-sm font-semibold text-white leading-relaxed">${esc(sc.question)}</p>
+              <p class="mt-2 text-xs text-indigo-100/80">Select the matching service on the architecture map.</p>
+            </div>
           </article>
 
           <div id="feedback" class="mt-3 rounded-xl border p-4 text-sm hidden"></div>
