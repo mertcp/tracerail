@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PCA Architecture Map Quiz — Google Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gcp: { bg: '#0f1419', panel: '#161b22', card: '#1c2333', border: '#2d3a4f', accent: '#4285f4', indigo: '#5c6bc0' }
+          },
+          animation: {
+            'flash-green': 'flashGreen 0.6s ease',
+            'flash-red': 'flashRed 0.6s ease',
+            'pulse-soft': 'pulseSoft 2s ease-in-out infinite'
+          },
+          keyframes: {
+            flashGreen: { '0%,100%': { boxShadow: '0 0 0 0 rgba(52,211,153,0)' }, '50%': { boxShadow: '0 0 24px 4px rgba(52,211,153,0.7)', borderColor: '#34d399' } },
+            flashRed: { '0%,100%': { boxShadow: '0 0 0 0 rgba(248,113,113,0)' }, '50%': { boxShadow: '0 0 24px 4px rgba(248,113,113,0.7)', borderColor: '#f87171' } },
+            pulseSoft: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0.85' } }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    .layer-band { background: linear-gradient(90deg, rgba(66,133,244,0.08) 0%, transparent 50%, rgba(92,107,192,0.08) 100%); }
+    .node-card { transition: transform 0.15s ease, border-color 0.15s, background 0.15s; }
+    .node-card:hover:not(:disabled) { transform: translateY(-2px); border-color: #4285f4; background: #243044; }
+    .node-card:disabled { opacity: 0.45; cursor: not-allowed; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #2d3a4f; border-radius: 3px; }
+  </style>
+</head>
+<body class="h-full bg-gcp-bg text-slate-200 font-sans antialiased">
+  <div id="app" class="min-h-full flex flex-col">
+  </div>
+  <script>
+(() => {
+  const LAYERS = [
+    {
+      id: 1,
+      name: 'Foundation & Identity',
+      services: [
+        { id: 'iam', name: 'IAM', icon: '🔐', cat: 'Identity' },
+        { id: 'cloud-identity', name: 'Cloud Identity', icon: '👤', cat: 'Identity' },
+        { id: 'resource-manager', name: 'Resource Manager', icon: '📁', cat: 'Governance' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'Security & Perimeter',
+      services: [
+        { id: 'iap', name: 'IAP', icon: '🛡️', cat: 'Access' },
+        { id: 'cloud-armor', name: 'Cloud Armor', icon: '⚔️', cat: 'WAF' },
+        { id: 'cloud-ngfw', name: 'Cloud NGFW', icon: '🔥', cat: 'Firewall' },
+        { id: 'kms', name: 'Cloud KMS', icon: '🔑', cat: 'Crypto' },
+        { id: 'secret-manager', name: 'Secret Manager', icon: '🤐', cat: 'Secrets' },
+        { id: 'vpc-sc', name: 'VPC Service Controls', icon: '🚧', cat: 'Perimeter' }
+      ]
+    },
+    {
+      id: 3,
+      name: 'Networking & Connectivity',
+      services: [
+        { id: 'load-balancing', name: 'Cloud Load Balancing', icon: '⚖️', cat: 'LB' },
+        { id: 'vpc', name: 'VPC', icon: '🌐', cat: 'Network' },
+        { id: 'cloud-dns', name: 'Cloud DNS', icon: '📡', cat: 'DNS' },
+        { id: 'cloud-cdn', name: 'Cloud CDN', icon: '🌍', cat: 'Edge' },
+        { id: 'interconnect', name: 'Cloud VPN / Interconnect', icon: '🔗', cat: 'Hybrid' },
+        { id: 'ncc', name: 'Network Connectivity Center', icon: '🛰️', cat: 'Hub' }
+      ]
+    },
+    {
+      id: 4,
+      name: 'Compute & Container Platforms',
+      services: [
+        { id: 'compute-engine', name: 'Compute Engine', icon: '🖥️', cat: 'VM' },
+        { id: 'gke', name: 'GKE', icon: '☸️', cat: 'K8s' },
+        { id: 'cloud-run', name: 'Cloud Run', icon: '🏃', cat: 'Serverless' },
+        { id: 'cloud-run-functions', name: 'Cloud Run Functions', icon: 'ƒ', cat: 'Functions' },
+        { id: 'ai-hypercomputer', name: 'AI Hypercomputer', icon: '🧠', cat: 'AI Infra' }
+      ]
+    },
+    {
+      id: 5,
+      name: 'Storage, Databases & Analytics',
+      services: [
+        { id: 'cloud-storage', name: 'Cloud Storage', icon: '🪣', cat: 'Object' },
+        { id: 'cloud-sql', name: 'Cloud SQL', icon: '🐬', cat: 'SQL' },
+        { id: 'spanner', name: 'Cloud Spanner', icon: '🌎', cat: 'Global SQL' },
+        { id: 'alloydb', name: 'AlloyDB', icon: '⚡', cat: 'PostgreSQL' },
+        { id: 'firestore', name: 'Firestore', icon: '📄', cat: 'NoSQL' },
+        { id: 'bigtable', name: 'Cloud Bigtable', icon: '📊', cat: 'Wide-column' },
+        { id: 'bigquery', name: 'BigQuery', icon: '📈', cat: 'Warehouse' },
+        { id: 'pubsub', name: 'Pub/Sub', icon: '📬', cat: 'Messaging' },
+        { id: 'dataflow', name: 'Dataflow', icon: '🌊', cat: 'Stream/Batch' }
+      ]
+    },
+    {
+      id: 6,
+      name: 'Operations & Management',
+      services: [
+        { id: 'observability', name: 'Google Cloud Observability', icon: '👁️', cat: 'Ops' },
+        { id: 'terraform', name: 'Terraform', icon: '🏗️', cat: 'IaC' }
+      ]
+    }
+  ];
+
+  const SCENARIOS = [
+    {
+      id: 1,
+      domain: '#Storage',
+      title: 'Cymbal Retail — global order ledger',
+      text: 'Cymbal Retail needs a globally consistent, horizontally scalable relational database with external ACID transactions across regions for its order ledger. Latency must stay low for reads worldwide. Regional managed MySQL is not sufficient.',
+      correct: 'spanner',
+      wrongHint: {
+        'cloud-sql': 'Cloud SQL excels at regional managed MySQL/PostgreSQL but does not provide Google-native global external consistency and multi-region ACID at Spanner scale.',
+        'firestore': 'Firestore is document NoSQL with strong consistency per region group, not a global relational ACID SQL store.',
+        'bigquery': 'BigQuery is an analytics warehouse, not an OLTP ledger with global transactional SQL.'
+      },
+      explain: 'Cloud Spanner delivers globally distributed, horizontally scalable SQL with external consistency and ACID— the PCA pattern for global OLTP that must look like one database.'
+    },
+    {
+      id: 2,
+      domain: '#Storage',
+      title: 'Altostrat — IoT telemetry flood',
+      text: 'Altostrat ingests millions of device metrics per second with append-heavy, time-ordered keys. You need single-digit ms writes at petabyte scale. Document sync and mobile offline are out of scope.',
+      correct: 'bigtable',
+      wrongHint: {
+        'firestore': 'Firestore targets app document sync and moderate throughput, not massive time-series write fan-in.',
+        'bigquery': 'BigQuery is for analytics queries over loaded data, not primary high-velocity ingestion storage.',
+        'cloud-sql': 'Cloud SQL cannot economically absorb IoT-scale sequential write throughput.'
+      },
+      explain: 'Cloud Bigtable is GCP’s wide-column store for high-throughput, low-latency time-series and IoT workloads with row-key design for sequential access.'
+    },
+    {
+      id: 3,
+      domain: '#Security',
+      title: 'Cymbal internal admin console',
+      text: 'Engineers must reach a browser-based admin UI on private IPs without a full-site VPN. Access should follow Google identity, device, and context (BeyondCorp-style) before TCP is allowed to the backend.',
+      correct: 'iap',
+      wrongHint: {
+        'cloud-armor': 'Cloud Armor protects HTTP(S) load-balanced apps with WAF/DDoS rules; it does not replace identity-aware TCP/SSH/RDP gating to private services.',
+        'cloud-ngfw': 'NGFW inspects traffic in VPC; it does not provide OAuth-aware HTTPS access to internal web apps like IAP.',
+        'vpc-sc': 'VPC Service Controls constrain API data movement; they do not authenticate users to internal web UIs.'
+      },
+      explain: 'Identity-Aware Proxy (IAP) verifies user/device context then brokers HTTPS (or TCP tunneled) access to apps without a traditional perimeter VPN— a classic PCA BeyondCorp answer.'
+    },
+    {
+      id: 4,
+      domain: '#Compute',
+      title: 'Altostrat — bursty checkout API',
+      text: 'A containerized checkout API has unpredictable traffic, must scale to zero overnight, and should not require cluster ops. Images are already OCI-compliant.',
+      correct: 'cloud-run',
+      wrongHint: {
+        'compute-engine': 'Compute Engine VMs run 24/7 unless you automate scaling; they do not natively scale to zero for stateless HTTP containers.',
+        'gke': 'GKE fits long-running services and custom scheduling; it adds cluster operational overhead versus fully managed scale-to-zero.',
+        'cloud-run-functions': 'Functions suit event triggers and single-purpose handlers; a full containerized HTTP service maps to Cloud Run.'
+      },
+      explain: 'Cloud Run runs stateless containers with request-based billing and scale-to-zero— the serverless container platform on the exam.'
+    },
+    {
+      id: 5,
+      domain: '#Analytics',
+      title: 'Cymbal Retail — live sales pipeline',
+      text: 'Store events land in a messaging bus; you need managed stream processing (windowing, enrichment) before loading a warehouse for BI. Minimize ops for the transform layer.',
+      correct: 'dataflow',
+      wrongHint: {
+        'pubsub': 'Pub/Sub ingests and delivers events but does not run Apache Beam transforms— it is the bus, not the processor.',
+        'bigquery': 'BigQuery is the sink for analytics SQL/ML; the scenario asks for the stream processing layer before the warehouse.',
+        'dataflow': null
+      },
+      explain: 'Primary answer: Dataflow (Apache Beam) for managed stream/batch ETL from Pub/Sub into BigQuery. Pub/Sub feeds the pipeline; BigQuery is the analytics destination— clicks on Dataflow match this step.'
+    },
+    {
+      id: 6,
+      domain: '#Networking',
+      title: 'Altostrat — hybrid data center link',
+      text: 'Altostrat needs predictable high bandwidth and low latency between on-prem and GCP for daily multi-TB database sync. SLA matters more than quick setup cost.',
+      correct: 'interconnect',
+      wrongHint: {
+        'vpc': 'VPC is your software-defined network inside GCP, not the physical hybrid link itself.',
+        'interconnect': null,
+        'cloud-dns': 'Cloud DNS resolves names; it does not carry private hybrid traffic.'
+      },
+      explain: 'Dedicated or partner Cloud Interconnect (vs IPsec VPN) is the PCA choice for high-bandwidth, low-latency private hybrid connectivity with committed throughput.'
+    },
+    {
+      id: 7,
+      domain: '#Security',
+      title: 'Cymbal — regulated encryption keys',
+      text: 'Compliance requires you to create, rotate, and audit encryption keys yourself while GCP services envelope-encrypt data. Storing API tokens is a separate concern.',
+      correct: 'kms',
+      wrongHint: {
+        'secret-manager': 'Secret Manager stores secret material (API keys, passwords) with versioning—not CMK lifecycle for envelope encryption.',
+        'kms': null
+      },
+      explain: 'Cloud KMS holds customer-managed encryption keys (CMEK) used by BigQuery, GCS, Compute disks, etc. Secret Manager is for application secrets, not master key custody.'
+    },
+    {
+      id: 8,
+      domain: '#Security',
+      title: 'Cymbal Retail — public storefront',
+      text: 'HTTP(S) external load balancer fronts the e-commerce site. You must mitigate L7 DDoS and OWASP Top 10 at the edge of Google’s network.',
+      correct: 'cloud-armor',
+      wrongHint: {
+        'iap': 'IAP gates authenticated access; it is not a WAF/DDoS policy engine on public customer traffic.',
+        'cloud-ngfw': 'VPC NGFW protects east-west VPC traffic, not global edge HTTP(S) LB threats.',
+        'load-balancing': 'Load balancing distributes traffic; security policies attach via Cloud Armor.'
+      },
+      explain: 'Cloud Armor security policies attach to HTTP(S) load balancers for WAF rules, geo restrictions, and adaptive L7 DDoS defense.'
+    },
+    {
+      id: 9,
+      domain: '#Security',
+      title: 'Altostrat — data exfiltration guard',
+      text: 'Sensitive datasets in BigQuery and GCS must stay inside a defined GCP perimeter even if credentials leak. API calls from outside the perimeter should be blocked.',
+      correct: 'vpc-sc',
+      wrongHint: {
+        'kms': 'KMS encrypts data at rest; it does not stop a stolen token from copying objects to an attacker project.',
+        'iap': 'IAP controls user access to apps, not service perimeter exfiltration across projects.',
+        'cloud-armor': 'Cloud Armor protects HTTP edges, not GCP API data perimeter for managed services.'
+      },
+      explain: 'VPC Service Controls create a service perimeter around projects/resources, mitigating data exfiltration via compromised credentials calling APIs from outside.'
+    },
+    {
+      id: 10,
+      domain: '#Operations',
+      title: 'Cymbal — multi-env provisioning',
+      text: 'Platform team wants declarative, reviewable infrastructure across dev/stage/prod with module reuse and state— aligned with industry practice on GCP.',
+      correct: 'terraform',
+      wrongHint: {
+        'resource-manager': 'Resource Manager organizes hierarchy and IAM inheritance; it is not an IaC engine.',
+        'observability': 'Observability stack is for monitoring/logging, not provisioning.',
+        'deployment-manager': 'Deployment Manager is GCP-native but Terraform is the named PCA stack item here.'
+      },
+      explain: 'Terraform (with Google provider) is the standard IaC choice in PCA scenarios for repeatable GCP resource provisioning and state management.'
+    },
+    {
+      id: 11,
+      domain: '#Analytics',
+      title: 'Altostrat — warehouse + embedded ML',
+      text: 'Analysts need petabyte SQL, federated queries over GCS, and in-warehouse ML (BQML) without exporting data to a separate training cluster.',
+      correct: 'bigquery',
+      wrongHint: {
+        'dataflow': 'Dataflow moves and transforms data; interactive warehouse SQL and BQML live in BigQuery.',
+        'spanner': 'Spanner is OLTP global SQL, not the analytics warehouse.',
+        'bigtable': 'Bigtable is operational wide-column storage, not ad-hoc analyst SQL.'
+      },
+      explain: 'BigQuery is the serverless analytics warehouse with SQL, partitioning, and BigQuery ML for models on warehouse data— classic PCA analytics answer.'
+    },
+    {
+      id: 12,
+      domain: '#Networking',
+      title: 'Cymbal — global static assets',
+      text: 'Marketing images and JS bundles sit in Cloud Storage behind an external HTTP(S) load balancer. Users worldwide need cache hits at Google edge POPs to cut latency and egress.',
+      correct: 'cloud-cdn',
+      wrongHint: {
+        'cloud-storage': 'GCS is origin storage; caching at the edge requires Cloud CDN on the LB backend.',
+        'load-balancing': 'The LB distributes requests; CDN is enabled on backend buckets/services for edge cache.',
+        'cloud-dns': 'DNS resolves hostnames; it does not cache HTTP objects.'
+      },
+      explain: 'Cloud CDN caches content at Google edge locations when used with HTTP(S) load balancing and GCS (or other) backends— minimizing latency for static global content.'
+    }
+  ];
+
+  const state = {
+    index: 0,
+    score: 0,
+    answered: false,
+    revealed: false,
+    wrongAttempts: 0,
+    completed: false
+  };
+
+  const $app = document.getElementById('app');
+
+  function serviceById(id) {
+    for (const layer of LAYERS) {
+      const s = layer.services.find(x => x.id === id);
+      if (s) return s;
+    }
+    return null;
+  }
+
+  function scenario() {
+    return SCENARIOS[state.index];
+  }
+
+  function progressPct() {
+    return Math.round((state.index / SCENARIOS.length) * 100);
+  }
+
+  function scorePct() {
+    if (state.index === 0 && state.score === 0) return 0;
+    const answered = state.completed ? SCENARIOS.length : state.index + (state.answered ? 1 : 0);
+    const base = state.completed ? SCENARIOS.length : Math.max(state.index + (state.answered ? 1 : 0), 1);
+    return Math.round((state.score / SCENARIOS.length) * 100);
+  }
+
+  function render() {
+    const sc = scenario();
+    const total = SCENARIOS.length;
+    const showSummary = state.completed;
+
+    if (showSummary) {
+      $app.innerHTML = summaryHtml();
+      bindSummary();
+      return;
+    }
+
+    $app.innerHTML = `
+      <header class="border-b border-gcp-border bg-gcp-panel/90 backdrop-blur sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-blue-400/80 font-semibold">Professional Cloud Architect</p>
+              <h1 class="text-lg sm:text-xl font-semibold text-white">Architecture Map Quiz</h1>
+            </div>
+            <div class="text-right text-sm">
+              <span class="text-slate-400">Question</span>
+              <span class="font-mono text-white">${state.index + 1}</span>
+              <span class="text-slate-500">of</span>
+              <span class="font-mono text-white">${total}</span>
+              <span class="mx-2 text-slate-600">|</span>
+              <span class="text-slate-400">Score</span>
+              <span class="font-mono text-emerald-400">${Math.round((state.score / total) * 100)}%</span>
+            </div>
+          </div>
+          <div class="mt-3 h-1.5 rounded-full bg-gcp-card overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300" style="width:${((state.index + (state.answered ? 1 : 0)) / total) * 100}%"></div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-4 flex flex-col lg:flex-row gap-4">
+        <section class="lg:w-[38%] shrink-0">
+          <article class="rounded-xl border border-gcp-border bg-gcp-panel p-4 shadow-lg shadow-black/20 animate-pulse-soft" style="animation-iteration-count: 1">
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">${sc.domain}</span>
+              <span class="text-xs text-slate-500">Scenario ${sc.id}</span>
+            </div>
+            <h2 class="text-base font-semibold text-white mb-2">${esc(sc.title)}</h2>
+            <p class="text-sm text-slate-300 leading-relaxed">${esc(sc.text)}</p>
+            <p class="mt-4 text-xs text-slate-500">Click the best-fit service on the map →</p>
+          </article>
+
+          <div id="feedback" class="mt-3 rounded-xl border p-4 text-sm hidden"></div>
+        </section>
+
+        <section class="flex-1 min-w-0">
+          <div class="rounded-xl border border-gcp-border bg-gcp-panel/50 p-3 overflow-auto max-h-[calc(100vh-8rem)] scrollbar-thin">
+            ${LAYERS.map(layer => layerHtml(layer)).join('')}
+          </div>
+        </section>
+      </main>
+    `;
+
+    bindMap();
+    updateFeedback();
+  }
+
+  function layerHtml(layer) {
+    return `
+      <div class="mb-4 last:mb-0">
+        <div class="layer-band rounded-lg px-3 py-1.5 mb-2 flex items-center gap-2 border-l-4 border-blue-500">
+          <span class="text-[10px] font-bold uppercase text-blue-400/90">Layer ${layer.id}</span>
+          <span class="text-xs font-medium text-slate-300">${esc(layer.name)}</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
+          ${layer.services.map(s => nodeHtml(s)).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function nodeHtml(s) {
+    return `
+      <button type="button" data-service="${s.id}" class="node-card text-left rounded-lg border border-gcp-border bg-gcp-card px-2 py-2 flex gap-2 items-start w-full">
+        <span class="text-lg leading-none" aria-hidden="true">${s.icon}</span>
+        <span class="min-w-0">
+          <span class="block text-xs font-medium text-white truncate">${esc(s.name)}</span>
+          <span class="block text-[10px] text-slate-500 uppercase tracking-wide">${esc(s.cat)}</span>
+        </span>
+      </button>
+    `;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function bindMap() {
+    document.querySelectorAll('[data-service]').forEach(btn => {
+      btn.addEventListener('click', () => onNodeClick(btn.getAttribute('data-service'), btn));
+    });
+  }
+
+  function onNodeClick(serviceId, btnEl) {
+    if (state.answered && !state.revealed) return;
+    if (state.answered && state.revealed) return;
+
+    const sc = scenario();
+    const correct = sc.correct === serviceId;
+
+    if (correct) {
+      state.answered = true;
+      if (state.wrongAttempts === 0) state.score += 1;
+      flash(btnEl, 'animate-flash-green');
+      showFeedback('success', sc.explain, true);
+      disableAllNodes(true);
+    } else {
+      state.wrongAttempts += 1;
+      flash(btnEl, 'animate-flash-red');
+      const hint = (sc.wrongHint && sc.wrongHint[serviceId]) || wrongGeneric(serviceId);
+      showFeedback('error', hint, false);
+    }
+  }
+
+  function wrongGeneric(serviceId) {
+    const s = serviceById(serviceId);
+    const name = s ? s.name : serviceId;
+    return `${name} is a valid GCP service but does not best match this scenario’s primary architectural need. Try again or reveal the answer.`;
+  }
+
+  function flash(el, cls) {
+    el.classList.remove('animate-flash-green', 'animate-flash-red');
+    void el.offsetWidth;
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), 600);
+  }
+
+  function disableAllNodes(disable) {
+    document.querySelectorAll('[data-service]').forEach(b => { b.disabled = disable; });
+  }
+
+  function showFeedback(kind, message, correct) {
+    const box = document.getElementById('feedback');
+    if (!box) return;
+    box.classList.remove('hidden');
+    if (kind === 'success') {
+      box.className = 'mt-3 rounded-xl border p-4 text-sm border-emerald-500/40 bg-emerald-950/40 text-emerald-100';
+      box.innerHTML = `
+        <p class="font-semibold text-emerald-300 mb-1">Correct</p>
+        <p class="mb-3">${esc(message)}</p>
+        <button type="button" id="btn-next" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition">Next Scenario</button>
+      `;
+      document.getElementById('btn-next').addEventListener('click', nextScenario);
+    } else {
+      box.className = 'mt-3 rounded-xl border p-4 text-sm border-red-500/40 bg-red-950/30 text-red-100';
+      box.innerHTML = `
+        <p class="font-semibold text-red-300 mb-1">Not the best fit</p>
+        <p class="mb-3">${esc(message)}</p>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" id="btn-retry" class="px-3 py-1.5 rounded-lg border border-slate-500 text-slate-200 text-sm hover:bg-slate-800">Try again</button>
+          <button type="button" id="btn-reveal" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm">Reveal answer</button>
+        </div>
+      `;
+      document.getElementById('btn-retry').addEventListener('click', () => {
+        box.classList.add('hidden');
+      });
+      document.getElementById('btn-reveal').addEventListener('click', revealAnswer);
+    }
+  }
+
+  function updateFeedback() {
+    if (state.answered) {
+      const sc = scenario();
+      showFeedback('success', sc.explain, true);
+    }
+  }
+
+  function revealAnswer() {
+    state.revealed = true;
+    state.answered = true;
+    const sc = scenario();
+    const correct = serviceById(sc.correct);
+    const box = document.getElementById('feedback');
+    box.className = 'mt-3 rounded-xl border p-4 text-sm border-amber-500/40 bg-amber-950/30 text-amber-100';
+    box.innerHTML = `
+      <p class="font-semibold text-amber-300 mb-1">Answer: ${esc(correct ? correct.name : sc.correct)}</p>
+      <p class="mb-3">${esc(sc.explain)}</p>
+      <button type="button" id="btn-next" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium">Next Scenario</button>
+    `;
+    document.getElementById('btn-next').addEventListener('click', nextScenario);
+    const btn = document.querySelector(`[data-service="${sc.correct}"]`);
+    if (btn) flash(btn, 'animate-flash-green');
+    disableAllNodes(true);
+  }
+
+  function nextScenario() {
+    if (state.index >= SCENARIOS.length - 1) {
+      state.completed = true;
+      render();
+      return;
+    }
+    state.index += 1;
+    state.answered = false;
+    state.revealed = false;
+    state.wrongAttempts = 0;
+    render();
+  }
+
+  function summaryHtml() {
+    const pct = Math.round((state.score / SCENARIOS.length) * 100);
+    return `
+      <div class="min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-md w-full rounded-2xl border border-gcp-border bg-gcp-panel p-8 text-center shadow-xl">
+          <p class="text-4xl mb-2">🎉</p>
+          <h2 class="text-2xl font-semibold text-white mb-2">Quiz complete</h2>
+          <p class="text-slate-400 text-sm mb-6">You finished all ${SCENARIOS.length} PCA scenarios.</p>
+          <p class="text-5xl font-mono text-emerald-400 mb-1">${pct}%</p>
+          <p class="text-sm text-slate-500 mb-6">${state.score} correct on first try (reveal counts as missed first try)</p>
+          <button type="button" id="btn-restart" class="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium">Restart</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindSummary() {
+    const btn = document.getElementById('btn-restart');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        state.index = 0;
+        state.score = 0;
+        state.answered = false;
+        state.revealed = false;
+        state.wrongAttempts = 0;
+        state.completed = false;
+        render();
+      });
+    }
+  }
+
+  render();
+})();
+  </script>
+</body>
+</html>
