@@ -13,6 +13,7 @@ Read `PROJECT.md` before changing scope. It is the plan.
 - Call it an operational fleet twin: asset health plus a visible delay-risk formula. Do not add 3D, CAD, physics, Kafka, Kubernetes, SSO, or a neural remaining-life model.
 - Stack stays FastAPI, a simple UI, SQLite or Postgres, one JSON LLM call, TF-IDF for similar assets.
 - Finish the code on this Mac. Do not deploy, restart, or leave a cloud machine running until Mert asks.
+- Be token-lean. Read `PROJECT.md` and only the files the task needs. Short replies, small diffs. No Cloud Agent / subagent / redeploy loops unless Mert asks. Recommend stays one JSON LLM call or the stub — never on page load or in a fleet loop. When deploy is approved, prefer scale-to-zero (Fly auto-stop, min 0) or a sleeping free host; see "Token and deploy efficiency" in `PROJECT.md`.
 - Write code Mert can explain aloud. Small files, straight functions, fleet words. No extra layers, banners, or a comment on every function.
 - Before the project is called finished, warn Mert, then follow "Before the project is finished" in `PROJECT.md`. Remove agent-only notes. Do not remove them earlier. Keep the cost-approval rule.
 - Any action that can cost Mert money must stop first. State the amount, then ask exactly: "This will cost you this amount. Do you approve this action?" Do not continue until he says yes. This includes Fly.io, Azure, OpenAI, and any other paid service.
